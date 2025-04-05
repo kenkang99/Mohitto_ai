@@ -1,20 +1,37 @@
-// app/signup.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import Checkbox from 'expo-checkbox';
 import { Ionicons } from '@expo/vector-icons';
+
+function TermsCheck({ isChecked, setChecked }) {
+  return (
+    <View style={styles.checkboxRow}>
+      <Text style={styles.policyText}>
+        i have read the <Text style={styles.linkText}> Privace Policy</Text>
+      </Text>
+      <Checkbox
+        value={isChecked}
+        onValueChange={setChecked}
+        color={isChecked ? '#FFBCC2' : '#A1A4B2'}
+      />
+    </View>
+  );
+}
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isChecked, setChecked] = useState(false);
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleSignin = () => {
+  const handleSignUp = () => {
     if (!email.trim()) {
       alert('이메일을 입력해 주세요.');
       return;
@@ -23,25 +40,18 @@ export default function SignUpScreen() {
       alert('이메일 형식이 올바르지 않습니다.');
       return;
     }
-    if (!password.trim()) {
-      alert('비밀번호를 입력해 주세요.');
-      return;
-    }
-    if (password !== '1234') {
-      alert('비밀번호가 올바르지 않습니다.');
-      return;
-    }
-
-    // router.push('/welcome');
+    console.log('회원가입 정보:', { name, email, password });
+    alert('회원가입 완료!');
+    router.back();
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.topLeftButton} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
 
-      <Text style={styles.title}>Welcome Back!</Text>
+      <Text style={styles.title}>Create your account</Text>
 
       <TouchableOpacity style={styles.fbButton} onPress={() => console.log('Facebook')}>
         <View style={styles.fbButtonContent}>
@@ -57,23 +67,30 @@ export default function SignUpScreen() {
         </View>
       </TouchableOpacity>
 
-      <Text style={{ color: '#A1A4B2', fontWeight: '600', marginTop: 35, marginBottom: 35, fontSize: 13 }}>
+      <Text style={{ color: '#A1A4B2', fontWeight: '600',fontSize: 13 }}>
         OR LOGIN WITH EMAIL
       </Text>
 
       <View>
+        <TextInput
+          placeholder="Name"
+          style={styles.inputbase}
+          value={name}
+          onChangeText={setName}
+        />
         <View style={styles.inputWithIcon}>
           <TextInput
-            placeholder="Email address"
+            placeholder="Email"
             style={styles.inputField}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
-          {isValidEmail(email) && <Ionicons name="checkmark-circle" size={15} color="green" />}
+          {isValidEmail(email) && (
+            <Ionicons name="checkmark-circle" size={15} color="green" />
+          )}
         </View>
-
         <TextInput
           placeholder="Password"
           style={styles.inputbase}
@@ -83,20 +100,13 @@ export default function SignUpScreen() {
         />
       </View>
 
-      <TouchableOpacity onPress={handleSignin} style={styles.submitButton}>
+      <TermsCheck isChecked={isChecked} setChecked={setChecked} />
+
+      <TouchableOpacity onPress={handleSignUp} style={styles.submitButton}>
         <View style={styles.submitButtonContent}>
-          <Text style={styles.submitButtonText}>LOG IN</Text>
+          <Text style={styles.submitButtonText}>GET STARTED</Text>
         </View>
       </TouchableOpacity>
-
-      <Text style={{ marginTop: 15, fontWeight: '500', color: '#3F414E' }}>Forgot Password?</Text>
-
-      <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 40 }}>
-        <Text style={{ color: '#A1A4B2', fontWeight: '500' }}>DON'T HAVE AN ACCOUNT? </Text>
-        <TouchableOpacity onPress={() => router.push('/signup')}>
-          <Text style={{ color: '#FFBCC2', fontWeight: '500' }}>SIGN UP</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -108,19 +118,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
+  
   title: {
     fontWeight: 'bold',
     fontSize: 25,
     textAlign: 'center',
     marginBottom: 30,
-    marginTop: 45,
     color: '#3F414E',
+    bottom : 20
   },
-  topLeftButton: {
+  backButton: {
     position: 'absolute',
-    top: 80,
+    top: 20,
     left: 20,
-    width: 50,
+    width: 50,  
     height: 50,
     backgroundColor: 'white',
     paddingHorizontal: 10,
@@ -130,7 +141,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     zIndex: 1,
-    marginBottom: 20,
   },
   backButtonText: {
     fontSize: 20,
@@ -140,7 +150,7 @@ const styles = StyleSheet.create({
   inputbase: {
     width: 360,
     height: 50,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#F2F3F7',
     borderRadius: 10,
     padding: 12,
     marginBottom: 20,
@@ -153,6 +163,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 75,
     borderRadius: 10,
     marginBottom: 20,
+    bottom : 20
   },
   fbButtonText: {
     color: '#F6F1FB',
@@ -173,6 +184,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#F2F2F2',
+    bottom : 20,
   },
   GgButtonText: {
     color: '#3F414E',
@@ -187,18 +199,31 @@ const styles = StyleSheet.create({
     height: 22,
     marginRight: 20,
   },
+  checkboxRow: {
+    width: 410,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    justifyContent: 'space-between',
+  },
+  policyText: {
+    color: '#A1A4B2',
+    marginLeft: 0,
+    textAlign: 'left',
+    alignItems: 'flex-start',
+  },
   linkText: {
-    color: '#3F414E',
+    color: '#FFBCC2',
   },
   submitButton: {
     backgroundColor: '#FFBCC2',
     paddingVertical: 17,
-    paddingHorizontal: 160,
+    paddingHorizontal: 130,
     borderRadius: 10,
-    marginTop: 5,
+    marginTop: 30,
   },
   submitButtonText: {
-    color: '#F6F1FB',
+    color: '#F2F2F2',
   },
   submitButtonContent: {
     flexDirection: 'row',
@@ -207,7 +232,7 @@ const styles = StyleSheet.create({
   inputWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F2F3F7',
+    backgroundColor: '#F2F2F2',
     paddingHorizontal: 12,
     width: 360,
     height: 50,

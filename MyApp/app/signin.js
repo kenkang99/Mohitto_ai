@@ -1,3 +1,4 @@
+// app/signup.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -31,12 +32,12 @@ export default function SignUpScreen() {
       return;
     }
 
-    router.push('/welcome');
+    // router.push('/welcome');
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.topLeftButton} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
 
@@ -56,7 +57,7 @@ export default function SignUpScreen() {
         </View>
       </TouchableOpacity>
 
-      <Text style={{ color: '#A1A4B2', fontWeight: '600', marginTop: 35, marginBottom: 35, fontSize: 13 }}>
+      <Text style={{ color: '#A1A4B2', fontWeight: '600', marginBottom: 20, fontSize: 13 }}>
         OR LOGIN WITH EMAIL
       </Text>
 
@@ -70,9 +71,7 @@ export default function SignUpScreen() {
             value={email}
             onChangeText={setEmail}
           />
-          {isValidEmail(email) && (
-            <Ionicons name="checkmark-circle" size={15} color="green" />
-          )}
+          {isValidEmail(email) && <Ionicons name="checkmark-circle" size={15} color="green" />}
         </View>
 
         <TextInput
@@ -92,7 +91,7 @@ export default function SignUpScreen() {
 
       <Text style={{ marginTop: 15, fontWeight: '500', color: '#3F414E' }}>Forgot Password?</Text>
 
-      <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 40 }}>
+      <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: -20 }}>
         <Text style={{ color: '#A1A4B2', fontWeight: '500' }}>DON'T HAVE AN ACCOUNT? </Text>
         <TouchableOpacity onPress={() => router.push('/signup')}>
           <Text style={{ color: '#FFBCC2', fontWeight: '500' }}>SIGN UP</Text>
@@ -114,12 +113,12 @@ const styles = StyleSheet.create({
     fontSize: 25,
     textAlign: 'center',
     marginBottom: 30,
-    marginTop: 45,
     color: '#3F414E',
+    bottom : 20
   },
-  topLeftButton: {
+  backButton: {
     position: 'absolute',
-    top: 80,
+    top: 20,
     left: 20,
     width: 50,
     height: 50,
@@ -131,7 +130,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     zIndex: 1,
-    marginBottom: 20,
   },
   backButtonText: {
     fontSize: 20,
@@ -154,6 +152,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 75,
     borderRadius: 10,
     marginBottom: 20,
+    bottom : 20
   },
   fbButtonText: {
     color: '#F6F1FB',
@@ -174,6 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#F2F2F2',
+    bottom:20,
   },
   GgButtonText: {
     color: '#3F414E',
