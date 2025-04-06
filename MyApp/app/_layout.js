@@ -1,6 +1,5 @@
-// App.js
 import { Slot } from 'expo-router';
 
-export default function App() {
+export default function RootLayout() {
   return <Slot />;
 }
