@@ -2,22 +2,36 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function Discover() {
+export default function HomeDiscover() {
   const router = useRouter();
   const [selectedTab , setselectedTab] = useState('DISCOVER');
 
   return (
     <View style={{ flex: 1 ,backgroundColor: 'white'}}>
         <View style={styles.header}>
-            <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
-            <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
+        <TouchableOpacity onPress={()=>router.push('/welcome')}>
+          <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={()=> router.push('/mypage-hairstyle')}>
+          <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
+        </TouchableOpacity>
         </View>
 
       <View style={{flex: 1}}>
         <View style={styles.buttonContainer}>
           
           {['DISCOVER','SIMULATION','HAIRSHOP'].map((tab)=>(
-            <TouchableOpacity key={tab} onPress={() => setselectedTab(tab)}
+            <TouchableOpacity key={tab} 
+            onPress={() =>  {
+              setselectedTab(tab);
+              if (tab === 'DISCOVER') {
+                router.push('/home-discover');
+              } else if (tab === 'SIMULATION') {
+                router.push('/home-simulation');
+              } else {
+                router.push('/home-hairshop');
+              }
+            }}
               style={styles.tabItem}>
             <Text style={[styles.tabText,selectedTab === tab && styles.activeTabText]}>
               {tab}
@@ -86,23 +100,25 @@ export default function Discover() {
 
 const styles = StyleSheet.create({
   header:{
-    flex : 0.05,
+    flex : 0.001,
     flexDirection:'row',
     justifyContent : 'space-between',
-    paddingHorizontal:20,
-    paddingVertical:10,
+    paddingHorizontal:40,
+    paddingVertical:25,
     alignItems : 'center',
     backgroundColor : '#FFBCC2'
   },
   logoimage: {
     width: 167,
     height: 44,
-    resizeMode : 'contain'
+    resizeMode : 'contain',
+    left:-30,
   },
   mypageimage:{
     width :34,
     height : 33,
-    resizeMode : 'contain'
+    resizeMode : 'contain',
+    right:-35
   },
   horizontalLine: {
     height: 1,               
