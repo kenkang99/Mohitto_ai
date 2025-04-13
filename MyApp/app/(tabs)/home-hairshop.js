@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function HomeDiscover() {
+
+
+export default function HomeHairshop() {
   const router = useRouter();
-  const [selectedTab , setselectedTab] = useState('DISCOVER');
+  const [selectedTab , setselectedTab] = useState('HAIRSHOP');
 
   return (
     <View style={{ flex: 1 ,backgroundColor: 'white'}}>
@@ -22,7 +24,7 @@ export default function HomeDiscover() {
           
           {['DISCOVER','SIMULATION','HAIRSHOP'].map((tab)=>(
             <TouchableOpacity key={tab} 
-            onPress={() =>  {
+            onPress={() => {
               setselectedTab(tab);
               if (tab === 'DISCOVER') {
                 router.push('/home-discover');
@@ -41,59 +43,17 @@ export default function HomeDiscover() {
           
         </View>
         <View style ={styles.horizontalLine}/>
-        <Text style = {styles.text}>얼굴형을 분석하고{'\n'}
-                                    {'\n'}
-                            최적의 헤어스타일을 탐색해보세요!
-        </Text>
+        <Text style = {styles.text}>당신 근처의 미용실을 찾아보세요!</Text>
         <View style={styles.imageContainer}>
-          <Image source={require('../../assets/example.png')}style ={styles.exampleImage}/>
-          {/* 선 1 */}
-          <View style = {[styles.line,{
-            top:140,
-            right : 60,
-          }]}>
-          </View>
-          {/* 선 2 */}
-          <View style = {[styles.line,{
-            top:163,
-            left : 161,
-            transform : [{rotate:'-50deg'}],
-          }]}>
-          </View>
-
-          {/* 점 1 */}
-          <View style = {[styles.dot,{
-            top:185,
-            left : 165,
-          }]}>
-          </View> 
-          {/* 선 3 */}
-          <View style = {[styles.line,{
-            top:110,
-            left : 10,
-          }]}>
-          </View>
-          {/* 선 4 */}
-          <View style = {[styles.line2,{
-            top:125,
-            left : 62,
-            transform : [{rotate:'50deg'}],
-          }]}>
-          </View>
-          {/* 점 2 */}
-          <View style = {[styles.dot,{
-            top:136,
-            left : 90,
-          }]}>
+          <Image source={require('../../assets/example_hairshop.png')}style ={styles.exampleImage}/>
           </View>
         </View>
-        <TouchableOpacity onPress={()=>router.push('./discover-survey')} style={styles.startButton}>
+        <TouchableOpacity onPress={()=>router.push('./hairshop-recomendation')} style={styles.startButton}>
                 <View style={styles.startButtonContent}>
                   <Text style={styles.startButtonText}>GET STARTED</Text>
                 </View>
               </TouchableOpacity>
       </View>
-    </View>
     
   );
 }
@@ -163,7 +123,8 @@ const styles = StyleSheet.create({
     fontSize : 16,
     fontWeight : 400,
     textAlign : 'center',
-    top:20
+    marginTop:40,
+    marginbottom :20,
   },
   imageContainer :{
     width:330,
@@ -177,9 +138,9 @@ const styles = StyleSheet.create({
     borderRadius:20
   },
   exampleImage :{
-    top:29,
+    top:24.5,
     resizeMode : 'cover',
-    width : 200,
+    width : 300,
     height : 300,
   },
   startButton: {
@@ -189,7 +150,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 30,
     marginHorizontal:30 ,
-    alignItems:'center'  
+    alignItems:'center',
+    bottom:20
   },
   startButtonText:{
     fontSize : 14,
@@ -201,23 +163,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row'
   },
-  line:{
-    position:'absolute',
-    width : 60,
-    height :2,
-    backgroundColor:'white'
-  },
-  line2:{
-    position:'absolute',
-    width : 40,
-    height :2,
-    backgroundColor:'white'
-  },
-dot : {
-  position:'absolute',
-  width : 8,
-  height : 8,
-  borderRadius : 4,
-  backgroundColor:'white',
-},
 });
