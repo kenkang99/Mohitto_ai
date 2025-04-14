@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function HomeDiscover() {
+export default function DiscoverResult() {
   const router = useRouter();
   const [selectedTab , setselectedTab] = useState('DISCOVER');
 
@@ -12,16 +12,19 @@ export default function HomeDiscover() {
         <TouchableOpacity onPress={()=>router.push('/welcome')}>
           <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=> router.push('/mypage-hairstyle')}>
+
+       <TouchableOpacity onPress={()=> router.push('/mypage-hairstyle')}>
           <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
         </TouchableOpacity>
+
         </View>
 
       <View style={{flex: 1}}>
         <View style={styles.buttonContainer}>
           
           {['DISCOVER','SIMULATION','HAIRSHOP'].map((tab)=>(
-            <TouchableOpacity key={tab} 
+            <TouchableOpacity 
+            key={tab} 
             onPress={() =>  {
               setselectedTab(tab);
               if (tab === 'DISCOVER') {
@@ -41,55 +44,23 @@ export default function HomeDiscover() {
           
         </View>
         <View style ={styles.horizontalLine}/>
-        <Text style = {styles.text}>얼굴형을 분석하고{'\n'}
-                                    {'\n'}
-                            최적의 헤어스타일을 탐색해보세요!
-        </Text>
+        <Text style = {styles.text}>얼굴형 분석을 완료했습니다.</Text>
+        
         <View style={styles.imageContainer}>
-          <Image source={require('../../assets/example.png')}style ={styles.exampleImage}/>
-          {/* 선 1 */}
-          <View style = {[styles.line,{
-            top:140,
-            right : 60,
-          }]}>
-          </View>
-          {/* 선 2 */}
-          <View style = {[styles.line,{
-            top:163,
-            left : 161,
-            transform : [{rotate:'-50deg'}],
-          }]}>
-          </View>
-
-          {/* 점 1 */}
-          <View style = {[styles.dot,{
-            top:185,
-            left : 165,
-          }]}>
-          </View> 
-          {/* 선 3 */}
-          <View style = {[styles.line,{
-            top:110,
-            left : 10,
-          }]}>
-          </View>
-          {/* 선 4 */}
-          <View style = {[styles.line2,{
-            top:125,
-            left : 62,
-            transform : [{rotate:'50deg'}],
-          }]}>
-          </View>
-          {/* 점 2 */}
-          <View style = {[styles.dot,{
-            top:136,
-            left : 90,
-          }]}>
+          <Image source={require('../../assets/example_result.png')}style ={styles.exampleImage}/>
+          <View style={styles.outlineSqure}>
           </View>
         </View>
-        <TouchableOpacity onPress={()=>router.push('./discover-survey')} style={styles.startButton}>
+        
+
+        <Text style = {styles.resultText}>
+          얼굴형 : 달걀형 {'\n'}
+          피부톤 : ##43566{'\n'}
+          성별 : 남성
+        </Text>
+        <TouchableOpacity onPress={()=>router.push('./discover-recomendation')} style={styles.startButton}>
                 <View style={styles.startButtonContent}>
-                  <Text style={styles.startButtonText}>GET STARTED</Text>
+                  <Text style={styles.startButtonText}>추천 받기</Text>
                 </View>
               </TouchableOpacity>
       </View>
@@ -100,7 +71,7 @@ export default function HomeDiscover() {
 
 const styles = StyleSheet.create({
   header:{
-    flex : 0.001,
+    flex : 0.05,
     flexDirection:'row',
     justifyContent : 'space-between',
     paddingHorizontal:40,
@@ -167,19 +138,19 @@ const styles = StyleSheet.create({
   },
   imageContainer :{
     width:330,
-    height:350,
+    height:300,
     top : 30,
-    backgroundColor:'#FFE0E3',
+    borderColor:'#FFBCC2',
+    borderWidth:2,
     justifyContent : 'center',
     alignItems : 'center',
     alignSelf :'center',
     marginVertical : 20,
-    borderRadius:20
+    position:'relative'
   },
   exampleImage :{
-    top:29,
     resizeMode : 'cover',
-    width : 200,
+    width : 325,
     height : 300,
   },
   startButton: {
@@ -201,23 +172,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row'
   },
-  line:{
-    position:'absolute',
-    width : 60,
-    height :2,
-    backgroundColor:'white'
+  resultText : {
+    textAlign : 'center',
+    marginTop : 45,
+    fontSize : 16,
   },
-  line2:{
-    position:'absolute',
-    width : 40,
-    height :2,
-    backgroundColor:'white'
-  },
-dot : {
-  position:'absolute',
-  width : 8,
-  height : 8,
-  borderRadius : 4,
-  backgroundColor:'white',
-},
+  outlineSqure :{
+    borderColor:'#FF0101',
+    width : 180,
+    height : 258,
+    borderWidth:1,
+    position : 'absolute'
+  }
 });

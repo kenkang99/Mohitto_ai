@@ -18,7 +18,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist":{
+        "NSLocationWhenInUseUsageDescription":"이 앱은 주변 미용실 정보를 보여주기 위해 위치 접근 권한이 필요합니다."
+      }
+      
     },
     "android": {
       "adaptiveIcon": {

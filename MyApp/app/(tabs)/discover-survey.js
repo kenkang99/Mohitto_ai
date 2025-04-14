@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import Checkbox from 'expo-checkbox';
 
-export default function Discover() {
+export default function DiscoverSurvey() {
   const router = useRouter();
   const [selectedTab , setselectedTab] = useState('DISCOVER');
   const [selectedGender, setSelectedGender] = useState(null);
@@ -22,15 +22,30 @@ export default function Discover() {
   return (
     <View style={{ flex: 1 ,backgroundColor: 'white'}}>
         <View style={styles.header}>
-            <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
-            <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
+        <TouchableOpacity onPress={()=>router.push('/welcome')}>
+          <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={()=> router.push('/mypage-hairstyle')}>
+          <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
+        </TouchableOpacity>
         </View>
 
       <View style={{flex: 1}}>
         <View style={styles.buttonContainer}>
           
           {['DISCOVER','SIMULATION','HAIRSHOP'].map((tab)=>(
-            <TouchableOpacity key={tab} onPress={() => setselectedTab(tab)}
+            <TouchableOpacity 
+            key={tab} 
+            onPress={() =>  {
+              setselectedTab(tab);
+              if (tab === 'DISCOVER') {
+                router.push('/home-discover');
+              } else if (tab === 'SIMULATION') {
+                router.push('/home-simulation');
+              } else {
+                router.push('/home-hairshop');
+              }
+            }}
               style={styles.tabItem}>
             <Text style={[styles.tabText,selectedTab === tab && styles.activeTabText]}>
               {tab}
@@ -41,13 +56,13 @@ export default function Discover() {
         </View>
         <View style ={styles.horizontalLine}/>
         <Text style = {styles.text}>최적의 헤어스타일을 찾기 위한{'\n'}
-                                    {'\n'}
                             설문을 진행합니다.</Text>
+        <Text>{'\n'}</Text>
         <Text>{'\n'}</Text>
         <View style={[styles.line]}/>
         <View style ={styles.container}>
             {/*성별 질문*/}
-           <View style = {styles.questionBlock}>  
+           <View style = {styles.questionBlock1}>
             <Text style ={styles.question}>당신의 성별은 무엇인가요?</Text>
             <View style={styles.optionsRow}>
                 {['남성', '여성'].map((option) => (
@@ -66,7 +81,7 @@ export default function Discover() {
            </View>
            <View style={[styles.line]}/>
             {/* 모발 질문 */}
-           <View style = {styles.questionBlock}>
+           <View style = {styles.questionBlock2}>
              <Text style ={styles.question}>당신의 모발 유형을 알려주세요.</Text>
              <View style = {styles.optionsRow}>
                 {['직모', '곱슬', '반곱슬'].map((option) => (
@@ -85,7 +100,7 @@ export default function Discover() {
            </View> 
            <View style={[styles.line]}/>
             {/* 기장 질문 */}
-          <View style = {styles.questionBlock}> 
+          <View style = {styles.questionBlock3}> 
             <Text style={styles.question}>당신의 현재 헤어 기장을 알려주세요.</Text>
             <View style ={styles.optionsRow}>
                 {['단발', '중단발', '장발'].map((option) => (
@@ -104,7 +119,7 @@ export default function Discover() {
             </View>
            </View>
         </View>
-        <TouchableOpacity style={styles.selectedButton}>
+        <TouchableOpacity onPress={() => router.push('/discover-camera')} style={styles.selectedButton}>
                 <View style={styles.selectedButtonContent}>
                   <Text style={styles.selectedButtonText}>SELECT IMAGE</Text>
                 </View>
@@ -119,20 +134,22 @@ const styles = StyleSheet.create({
     flex : 0.05,
     flexDirection:'row',
     justifyContent : 'space-between',
-    paddingHorizontal:20,
-    paddingVertical:10,
+    paddingHorizontal:40,
+    paddingVertical:25,
     alignItems : 'center',
     backgroundColor : '#FFBCC2'
   },
   logoimage: {
     width: 167,
     height: 44,
-    resizeMode : 'contain'
+    resizeMode : 'contain',
+    left:-30,
   },
   mypageimage:{
     width :34,
     height : 33,
-    resizeMode : 'contain'
+    resizeMode : 'contain',
+    right:-35
   },
   horizontalLine: {
     height: 1,               
@@ -211,8 +228,20 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
   },
-  questionBlock: {
-    marginBottom: 30,       
+  questionBlock1: {
+    marginTop:10,       
+    paddingHorizontal: 16,  
+    alignItems: 'center',
+  },
+  questionBlock2: {
+    marginTop : 10,
+    marginBottom: 5,       
+    paddingHorizontal: 16,  
+    alignItems: 'center',
+  },
+  questionBlock3: {
+    marginTop : 15,
+    marginBottom: 5,       
     paddingHorizontal: 16,  
     alignItems: 'center',
   },
