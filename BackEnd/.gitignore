@@ -1,0 +1,12 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# Data / Model files
+*.pkl
+
+# OS files
+.DS_Store
