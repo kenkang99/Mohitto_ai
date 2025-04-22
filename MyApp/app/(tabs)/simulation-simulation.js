@@ -111,26 +111,24 @@ export default function SimulationSimulation() {
 
 const styles = StyleSheet.create({
   header:{
-    flex : 0.001,
+    height:55,
     flexDirection:'row',
     justifyContent : 'space-between',
-    paddingHorizontal:40,
-    paddingVertical:25,
+    paddingHorizontal:15,
     alignItems : 'center',
     backgroundColor : '#FFBCC2'
   },
   logoimage: {
-    width: 167,
-    height: 44,
+    width: 160,
+    height: 45,
     resizeMode : 'contain',
-    left:-30,
   },
   mypageimage:{
     width :34,
     height : 33,
     resizeMode : 'contain',
-    right:-35
   },
+
   horizontalLine: {
     height: 1,               
     backgroundColor: '#B7B7B7', 

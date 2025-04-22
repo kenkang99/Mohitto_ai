@@ -13,7 +13,9 @@ export default function SigninScreen() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-
+  
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
+  
   const handleSignin = () => {
     if (!email.trim()) {
       alert('이메일을 입력해 주세요.');
@@ -64,7 +66,7 @@ export default function SigninScreen() {
       <View>
         <View style={styles.inputWithIcon}>
           <TextInput
-            placeholder="Email address"
+            placeholder="Email"
             style={styles.inputField}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -73,15 +75,24 @@ export default function SigninScreen() {
           />
           {isValidEmail(email) && <Ionicons name="checkmark-circle" size={15} color="green" />}
         </View>
-
+      <View style = {[styles.inputWithIcon,{marginTop:20}]}>
         <TextInput
           placeholder="Password"
-          style={styles.inputbase}
-          secureTextEntry
+          style={styles.inputField}
+          secureTextEntry = {!isPasswordVisible}
           value={password}
           onChangeText={setPassword}
         />
+         <TouchableOpacity onPress={()=> setPasswordVisible(prev => !prev)} style={{padding:8}}>
+            <Ionicons
+              name = {isPasswordVisible ? 'eye' : 'eye-off'}
+              size={20}
+              color = '#A1A4B2'
+              style = {{marginRight:'auto'}}
+              />
+          </TouchableOpacity>
       </View>
+    </View>
 
       <TouchableOpacity onPress={handleSignin} style={styles.submitButton}>
         <View style={styles.submitButtonContent}>
@@ -135,16 +146,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     fontWeight: 'bold',
-  },
-  inputbase: {
-    width: 360,
-    height: 50,
-    backgroundColor: '#F2F2F2',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 20,
-    fontSize: 16,
-    marginTop: 20,
   },
   fbButton: {
     backgroundColor: '#FFBCC2',
