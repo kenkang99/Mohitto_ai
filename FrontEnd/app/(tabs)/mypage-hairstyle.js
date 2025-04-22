@@ -135,7 +135,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   imageContainer:{
-    flexDirection : 'row'
+    flexDirection : 'row',
+    alignItems : 'center',
+    alignSelf : 'center'
   },
   styleImage1:{
     width : 103,
