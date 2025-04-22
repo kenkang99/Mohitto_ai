@@ -26,6 +26,8 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [isChecked, setChecked] = useState(false);
 
+  const isValidName = (name) => name.trim().length >=2;
+
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -44,6 +46,8 @@ export default function SignUpScreen() {
     alert('회원가입 완료!');
     router.back();
   };
+
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -71,14 +75,18 @@ export default function SignUpScreen() {
         OR LOGIN WITH EMAIL
       </Text>
 
-      <View>
+      <View style = {[styles.inputWithIcon,{marginTop:20}]}>
         <TextInput
           placeholder="Name"
-          style={styles.inputbase}
+          style={styles.inputField}
           value={name}
           onChangeText={setName}
         />
-        <View style={styles.inputWithIcon}>
+        {isValidName(name) && (
+            <Ionicons name="checkmark-circle" size={15} color="green" />
+          )}
+        </View>
+        <View style={[styles.inputWithIcon,{marginTop:20}]}>
           <TextInput
             placeholder="Email"
             style={styles.inputField}
@@ -91,17 +99,27 @@ export default function SignUpScreen() {
             <Ionicons name="checkmark-circle" size={15} color="green" />
           )}
         </View>
-        <TextInput
-          placeholder="Password"
-          style={styles.inputbase}
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+        <View style = {[styles.inputWithIcon,{marginTop:20}]}>
+          <TextInput
+            placeholder="Password"
+            style={styles.inputField}
+            secureTextEntry = {!isPasswordVisible}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity onPress={()=> setPasswordVisible(prev => !prev)} style={{padding:8}}>
+            <Ionicons
+              name = {isPasswordVisible ? 'eye' : 'eye-off'}
+              size={20}
+              color = '#A1A4B2'
+            />
+          </TouchableOpacity>
+        </View>
+      <View style ={{marginTop:20}}>
+        <TermsCheck isChecked={isChecked} setChecked={setChecked} />
       </View>
-
-      <TermsCheck isChecked={isChecked} setChecked={setChecked} />
-
+      
+      
       <TouchableOpacity onPress={handleSignUp} style={styles.submitButton}>
         <View style={styles.submitButtonContent}>
           <Text style={styles.submitButtonText}>GET STARTED</Text>
