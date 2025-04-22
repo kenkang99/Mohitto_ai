@@ -1,5 +1,5 @@
 {
-  "name": "myapp",
+  "name": "frontend",
   "version": "1.0.0",
   "main": "node_modules/expo-router/entry",
   "scripts": {
