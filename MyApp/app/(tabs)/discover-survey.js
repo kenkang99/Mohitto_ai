@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     justifyContent : 'space-between',
     paddingHorizontal:40,
-    paddingVertical:25,
+    paddingVertical:25.5,
     alignItems : 'center',
     backgroundColor : '#FFBCC2'
   },
@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
     width: 167,
     height: 44,
     resizeMode : 'contain',
-    left:-30,
   },
   mypageimage:{
     width :34,

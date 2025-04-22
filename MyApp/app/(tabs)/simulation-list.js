@@ -93,7 +93,34 @@ export default function SimulationList() {
             />
           </TouchableOpacity>
         </View>
-
+         <View style={styles.sortDropdownWrapper}>
+          <TouchableOpacity
+            style = {styles.sortDropdownButton}
+            onPress = {() => setShowDropdown (prev => !prev)}        
+          >
+          <Text style = {styles.sortDropdownText}>{sortOption}</Text>    
+          <Feather name='chevron-down' size ={16} color={'#B7B7B7'}></Feather>
+          </TouchableOpacity>
+                  
+          {showDropdown && (
+            <View style = {styles.dropdownList}>
+              {['인기순','최신순']
+                .filter(option => option!==sortOption)
+                .map(option => (
+                 <TouchableOpacity
+                  key ={option}
+                  onPress={()=> {
+                  setSortOption(option);
+                  setShowDropdown(false);
+                  }}
+                  >
+                  <Text style = {styles.dropdownItem}>{option}</Text>
+                  </TouchableOpacity>
+                  ))}
+                    </View>
+                  )}
+                </View>
+        
         <ScrollView>
         {filteredStyles.map((style)=>(
            <View key ={style.id} style={styles.imageContainer}>
@@ -224,6 +251,49 @@ const styles = StyleSheet.create({
   result: {
     paddingVertical: 10,
     fontSize: 16,
+  },
+  result: {
+    paddingVertical: 10,
+    fontSize: 16,
+  },
+  sortDropdownWrapper: {
+    justifyContent : 'flex-end',
+    flexDirection: 'row',
+    paddingright:20,
+    position:'relative'
+  },
+  sortDropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    borderColor: '#B7B7B7',
+    justifyContent: 'flex-end',
+  },
+  sortDropdownText: {
+    fontSize: 15,
+    fontWeight:'bold',
+    color: '#B7B7B7',
+  },
+  dropdownList: {
+    position: 'absolute',
+    marginTop:20,
+    right:18,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderColor: '#F2F2F2',
+    borderRadius:8,
+    zIndex: 999,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+  },
+  dropdownItem: {
+    marginTop:4,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    fontSize: 15,
+    fontWeight:'bold',
+    color:'#B7B7B7',
   },
 }
 );
