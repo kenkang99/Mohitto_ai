@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Linking,View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 import MapView, {Marker} from 'react-native-maps';
 import {Feather} from '@expo/vector-icons'
 
-export default function Discover() {
+export default function DiscoverHairshop() {
   const router = useRouter();
+  const pathname = usePathname();
   const [selectedTab , setselectedTab] = useState('HAIRSHOP');
   const [bookmarkedIds, setBookmarkedIds] = useState([]);
+  
   
   const toggleBookmark = (id) =>{
     if (bookmarkedIds.includes(id)) {
@@ -15,7 +17,6 @@ export default function Discover() {
     } else {
       setBookmarkedIds(prev => [...prev,id]);
     }
-
   };
 
   const mockLocations = [
@@ -33,37 +34,37 @@ export default function Discover() {
         <TouchableOpacity onPress={()=>router.push('/welcome')}>
           <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=> router.push('/mypage-hairstyle')}>
-          <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
+      <TouchableOpacity onPress={()=> router.push('/mypage-hairstyle')}>
+        <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
         </TouchableOpacity>
+
         </View>
 
       <View style={{flex: 1}}>
         <View style={styles.buttonContainer}>
           
-          {['DISCOVER','SIMULATION','HAIRSHOP'].map((tab)=>(
-            <TouchableOpacity 
-            key={tab} 
-            onPress={() =>  {
-              setselectedTab(tab);
-              if (tab === 'DISCOVER') {
-                router.push('/home-discover');
-              } else if (tab === 'SIMULATION') {
-                router.push('/home-simulation');
-              } else {
-                router.push('/home-hairshop');
-              }
-            }}
-              style={styles.tabItem}>
-            <Text style={[styles.tabText,selectedTab === tab && styles.activeTabText]}>
-              {tab}
-            </Text>
-            {selectedTab === tab && <View style={styles.underline}/>}
-            </TouchableOpacity>))}
-          
-        </View>
+        {['DISCOVER','SIMULATION','HAIRSHOP'].map((tab)=>(
+                    <TouchableOpacity 
+                    key={tab}
+                    onPress={() =>  {
+                      setselectedTab(tab);
+                      if (tab === 'DISCOVER') {
+                        router.push('/home-discover');
+                      } else if (tab === 'SIMULATION') {
+                        router.push('/home-simulation');
+                      } else {
+                        router.push('/home-hairshop');
+                      }
+                    }}
+                    style={styles.tabItem}>
+                    <Text style={[styles.tabText,selectedTab === tab && styles.activeTabText]}>
+                      {tab}
+                    </Text>
+                    {selectedTab === tab && <View style={styles.underline}/>}
+                    </TouchableOpacity>))}  
+                </View>
         <View style ={styles.horizontalLine}/>
-        <Text style = {styles.text}>근처 미용실 정보</Text>
+        <Text style = {styles.text}>헤어스타일에 적합한 미용실을 추천합니다.</Text>
         <ScrollView contentContainerStyle ={{paddingBottom:50}}>
             <View style={styles.mapcontainer}>
               <MapView
@@ -133,7 +134,6 @@ const styles = StyleSheet.create({
     height : 33,
     resizeMode : 'contain',
   },
-
   horizontalLine: {
     height: 1,               
     backgroundColor: '#B7B7B7', 
@@ -217,23 +217,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   mapcontainer:{
-    flex :1,
     borderColor:'#FFBCC2',
     borderWidth:4,
-    width : 362,
+    width : '90%',
     height:318,
     alignItems:'center',
     justifyContent:'center',
-    marginHorizontal:15,
+    alignSelf:'center',
     marginTop:30
   },
   shopCard :{
     backgroundColor:'#FFEFF1',
-    width:374,
+    width:'90%',
     height:180,
     marginTop:40,
     borderRadius:15,
-    marginHorizontal:5,
     padding:10,
   },
   shopName: {
