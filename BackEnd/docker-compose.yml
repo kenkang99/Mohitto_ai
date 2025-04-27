@@ -1,9 +1,10 @@
 version: '3'
-
 services:
-  fastapi-server:
+  backend:
+    container_name: fastapi-backend
     build: .
-    container_name: fastapi-server
     ports:
       - "8000:8000"
     restart: always
+    volumes:
+      - .:/app
