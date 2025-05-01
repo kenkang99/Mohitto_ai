@@ -1,7 +1,7 @@
 # main.py
 
 from fastapi import FastAPI, Depends
-from routers import auth, user
+from routers import auth, user, styles, salons
 from core.database import engine, Base, get_db
 from sqlalchemy import text
 
@@ -27,6 +27,8 @@ def test_db(db = Depends(get_db)):
 
 app.include_router(auth.router)
 app.include_router(user.router)
+app.include_router(styles.router)
+app.include_router(salons.router)
 
 if __name__ == "__main__":
     import uvicorn
