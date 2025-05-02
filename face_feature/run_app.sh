@@ -1,4 +1,3 @@
-# 0) 가상환경 활성화
 # 가상환경이 없으면 생성
 # rm -rf face_feature_venv
 # python3 -m venv face_feature_venv
