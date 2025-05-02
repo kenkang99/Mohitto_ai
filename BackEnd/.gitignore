@@ -13,3 +13,7 @@ venv/
 
 # DataBase Info
 .env
+.env.*
+
+# Pem code
+*.pem

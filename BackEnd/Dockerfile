@@ -1,5 +1,5 @@
 # 1. 베이스 이미지
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 # 2. 작업 디렉토리 생성
 WORKDIR /app
