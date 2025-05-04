@@ -44,6 +44,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   button: {
+    width:'90%',
     backgroundColor: '#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 150,
