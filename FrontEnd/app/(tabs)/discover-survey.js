@@ -21,11 +21,11 @@ export default function DiscoverSurvey() {
   const [foreheadType, setForeheadType] = useState(null);       
   const [cheekboneType, setCheekboneType] = useState(null);
   const [groomingDifficulty, setGroomingDifficulty] = useState(null);
-  const [selectedAtmospheres, setSelectedAtmospheres] = useState([]);
+  const [selectedMood, setSelectedMood] = useState([]);
 
 
   const [customInput,setCustomInput] = useState('');
-  const atmosphere = ['세련된', '부드러운', '깔끔한','귀여운','단정한','우아한','독특한','사랑스러운','고급스러운', '차분한','따뜻한','강렬한'];
+  const mood = ['세련된', '부드러운', '깔끔한','귀여운','단정한','우아한','독특한','사랑스러운','고급스러운', '차분한','따뜻한','강렬한'];
   
   const handleSelect = (value,current,setter) => {
     if(current === value) {
@@ -36,8 +36,8 @@ export default function DiscoverSurvey() {
 
   };
 
-  const toggleAtmosphere = (item) => {
-    setSelectedAtmospheres(prev => {
+  const toggleMood = (item) => {
+    setSelectedMood(prev => {
       // 이미 선택된 항목이면, 그 항목만 걸러내고 리턴
       if (prev.includes(item)) {
         return prev.filter(i => i !== item);
@@ -307,18 +307,18 @@ export default function DiscoverSurvey() {
                     <Text style={styles.question2}>최대 3개까지 선택 가능합니다.</Text>
         
                     <View style = {styles.grid}>
-                      {chunkArray(atmosphere, 3).map((row,rowIndex)=>(
+                      {chunkArray(mood, 3).map((row,rowIndex)=>(
                           <View key = {rowIndex} style = {{flexDirection:'row', justifyContent : 'center',
                             marginBottom : 16}}>
                               {row.map((item)=>(
                                   <TouchableOpacity
                                     key= {item}
-                                    onPress={()=> toggleAtmosphere(item)}
+                                    onPress={()=> toggleMood(item)}
                                     style ={[
-                                      styles.atmosphereButton,
-                                      selectedAtmospheres.includes(item) && styles.atmosphereButtonSelected]}>
-                                    <Text style={[styles.atmosphereButtonText, selectedAtmospheres.includes(item) && 
-                                      styles.atmosphereButtonTextSelected
+                                      styles.moodButton,
+                                      selectedMood.includes(item) && styles.moodButtonSelected]}>
+                                    <Text style={[styles.moodButtonText, selectedMood.includes(item) && 
+                                      styles.moodButtonTextSelected
                                     ]}>{item}</Text>
                                   </TouchableOpacity>
                               ))}
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     flexDirection : 'row',
     marginBottom : 16,
   },
-  atmosphereButton: {
+  moodButton: {
     width: 106,
     height: 42,
     borderRadius: 30,
@@ -570,16 +570,16 @@ const styles = StyleSheet.create({
     marginTop : 30
 
   },
-  atmosphereButtonSelected: {
+  moodButtonSelected: {
     backgroundColor: 'rgba(255, 188, 194, 0.5)',
     borderColor: '#E0E0E0',
     borderWidth:2
   },
-  atmosphereButtonText: {
+  moodButtonText: {
     color: '#3F414E',
     fontSize: 15,
   },
-  atmosphereButtonTextSelected: {
+  moodButtonTextSelected: {
     fontWeight: 'bold',
   },
 });
