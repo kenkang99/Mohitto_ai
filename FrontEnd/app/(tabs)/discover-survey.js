@@ -1,15 +1,32 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, {  useState } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView,TextInput,Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import Checkbox from 'expo-checkbox';
+import {Feather} from '@expo/vector-icons'
+
 
 export default function DiscoverSurvey() {
+  const [step, setStep] = useState(1);
+  const totalPages = 2;
+  
+
   const router = useRouter();
-  const [selectedTab , setselectedTab] = useState('DISCOVER');
+  const [selectedTab , setSelectedTab] = useState('DISCOVER');
   const [selectedGender, setSelectedGender] = useState(null);
   const [selectedHairType, setSelectedHairtype] = useState(null);
-  const [selectedHairLength, setSelectedHairLength] = useState(null);
+  const [femaleHairLength,setFemaleHairLength] = useState(null);
+  const [maleHairLength, setMaleHairLength] = useState(null);
+  const [hasBang, setHasBang] = useState(null);      
+  const [isDyed, setIsDyed] = useState(null);
+  const [foreheadType, setForeheadType] = useState(null);       
+  const [cheekboneType, setCheekboneType] = useState(null);
+  const [groomingDifficulty, setGroomingDifficulty] = useState(null);
+  const [selectedAtmospheres, setSelectedAtmospheres] = useState([]);
 
+
+  const [customInput,setCustomInput] = useState('');
+  const atmosphere = ['세련된', '부드러운', '깔끔한','귀여운','단정한','우아한','독특한','사랑스러운','고급스러운', '차분한','따뜻한','강렬한'];
+  
   const handleSelect = (value,current,setter) => {
     if(current === value) {
         setter(null);
@@ -19,8 +36,35 @@ export default function DiscoverSurvey() {
 
   };
 
+  const toggleAtmosphere = (item) => {
+    setSelectedAtmospheres(prev => {
+      // 이미 선택된 항목이면, 그 항목만 걸러내고 리턴
+      if (prev.includes(item)) {
+        return prev.filter(i => i !== item);
+      }
+      // 미선택 항목이고, 아직 3개 미만이면 추가
+      if (prev.length < 3) {
+        return [...prev, item];
+      }
+      // 3개 이미 선택된 상태에서 추가 시도하면 그대로 리턴
+      return prev;
+    });
+  };
+  const goNext = () => step < totalPages && setStep(step + 1);
+  const goPrev = () => step > 1 && setStep(step - 1);
+
+  const chunkArray = (array, size) => {
+    const result = [];
+      for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+  }
+  return result
+};
+
+
   return (
     <View style={{ flex: 1 ,backgroundColor: 'white'}}>
+      {/* — 공통 헤더 & 탭바 — */}
         <View style={styles.header}>
         <TouchableOpacity onPress={()=>router.push('/welcome')}>
           <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
@@ -37,7 +81,7 @@ export default function DiscoverSurvey() {
             <TouchableOpacity 
             key={tab} 
             onPress={() =>  {
-              setselectedTab(tab);
+              setSelectedTab(tab);
               if (tab === 'DISCOVER') {
                 router.push('/home-discover');
               } else if (tab === 'SIMULATION') {
@@ -55,11 +99,14 @@ export default function DiscoverSurvey() {
           
         </View>
         <View style ={styles.horizontalLine}/>
+        {/* — 페이지 컨텐츠 — */}
+        {step === 1 && (
+          <>
         <Text style = {styles.text}>최적의 헤어스타일을 찾기 위한{'\n'}
                             설문을 진행합니다.</Text>
         <Text>{'\n'}</Text>
-        <Text>{'\n'}</Text>
         <View style={[styles.line]}/>
+        <ScrollView contentContainerStyle={{flexGrow:1}}>
         <View style ={styles.container}>
             {/*성별 질문*/}
            <View style = {styles.questionBlock1}>
@@ -73,6 +120,57 @@ export default function DiscoverSurvey() {
                     <Checkbox
                         value={selectedGender === option}
                         color={selectedGender === option ? '#FFBCC2' : undefined}
+                        style={styles.checkbox}/>
+                    <Text style={styles.optionText}>{option}</Text>
+                    </TouchableOpacity>
+            ))}
+            </View>
+           </View>
+           <View style={[styles.line]}/>
+           <View style={styles.customInputWrapper}>
+           <Text style ={styles.question}>현재 거주 중인 행정동을 입력해주세요.</Text>
+              <TextInput
+                style={styles.customInput}
+                placeholder="예:신사동"
+                value={customInput}
+                onChangeText={setCustomInput}
+                multiline={false}          
+                numberOfLines={3}
+                returnKeyType="done"
+              />
+          </View>
+          <View style={[styles.line]}/>
+            {/*앞머리 질문*/}
+            <View style = {styles.questionBlock1}>
+            <Text style ={styles.question}>현재 앞머리가 있으신가요?</Text>
+            <View style={styles.optionsRow}>
+                {['O', 'X'].map((option) => (
+                    <TouchableOpacity
+                        key={option}
+                        style ={styles.optionItem}
+                        onPress={() => handleSelect(option, hasBang, setHasBang)}>
+                    <Checkbox
+                        value={hasBang === option}
+                        color={hasBang === option ? '#FFBCC2' : undefined}
+                        style={styles.checkbox}/>
+                    <Text style={styles.optionText}>{option}</Text>
+                    </TouchableOpacity>
+            ))}
+            </View>
+           </View>
+          <View style={[styles.line]}/>
+            {/*염색 질문*/}
+            <View style = {styles.questionBlock1}>
+            <Text style ={styles.question}>현재 염색을 하셨나요?</Text>
+            <View style={styles.optionsRow}>
+                {['O', 'X'].map((option) => (
+                    <TouchableOpacity
+                        key={option}
+                        style ={styles.optionItem}
+                        onPress={() => handleSelect(option, isDyed, setIsDyed)}>
+                    <Checkbox
+                        value={isDyed === option}
+                        color={isDyed === option ? '#FFBCC2' : undefined}
                         style={styles.checkbox}/>
                     <Text style={styles.optionText}>{option}</Text>
                     </TouchableOpacity>
@@ -101,16 +199,95 @@ export default function DiscoverSurvey() {
            <View style={[styles.line]}/>
             {/* 기장 질문 */}
           <View style = {styles.questionBlock3}> 
-            <Text style={styles.question}>당신의 현재 헤어 기장을 알려주세요.</Text>
+            <Text style={styles.question}>당신의 현재 헤어 기장을 알려주세요.(남)</Text>
             <View style ={styles.optionsRow}>
-                {['단발', '중단발', '장발'].map((option) => (
+                {['숏', '미디움', '롱'].map((option) => (
                     <TouchableOpacity
                         key={option}
                         style = {styles.optionItem}
-                        onPress={() => handleSelect(option, selectedHairLength, setSelectedHairLength)}>
+                        onPress={() => handleSelect(option, maleHairLength, setMaleHairLength)}>
                     <Checkbox
-                        value={selectedHairLength === option}
-                        color={selectedHairLength === option ? '#FFBCC2' : undefined}
+                        value={maleHairLength=== option}
+                        color={maleHairLength === option ? '#FFBCC2' : undefined}
+                        style={styles.checkbox}
+                        />
+                    <Text style={styles.optionText}>{option}</Text>    
+                    </TouchableOpacity>
+                ))}
+            </View>
+           </View>
+           <View style={[styles.line]}/>
+           <View style = {styles.questionBlock3}> 
+            <Text style={styles.question}>당신의 현재 헤어 기장을 알려주세요.(여)</Text>
+            <View style ={styles.optionsRow}>
+                {['단발', '중단발', '장발','숏컷'].map((option) => (
+                    <TouchableOpacity
+                        key={option}
+                        style = {styles.optionItemHalf}
+                        onPress={() => handleSelect(option, femaleHairLength,setFemaleHairLength)}>
+                    <Checkbox
+                        value={femaleHairLength === option}
+                        color={femaleHairLength === option ? '#FFBCC2' : undefined}
+                        style={styles.checkbox}
+                        />
+                    <Text style={styles.optionText}>{option}</Text>    
+                    </TouchableOpacity>
+                ))}
+            </View>
+           </View>
+           <View style={[styles.line]}/> 
+        {/* 이마모양 질문 */}
+        <View style = {styles.questionBlock3}> 
+            <Text style={styles.question}>당신의 이마모양을 알려주세요.</Text>
+            <View style ={styles.optionsRow}>
+                {['둥근형', 'M자형', '네모형'].map((option) => (
+                    <TouchableOpacity
+                        key={option}
+                        style = {styles.optionItem}
+                        onPress={() => handleSelect(option, foreheadType,setForeheadType)}>
+                    <Checkbox
+                        value={foreheadType === option}
+                        color={foreheadType === option ? '#FFBCC2' : undefined}
+                        style={styles.checkbox}
+                        />
+                    <Text style={styles.optionText}>{option}</Text>    
+                    </TouchableOpacity>
+                ))}
+            </View>
+           </View>
+           <View style={[styles.line]}/> 
+        {/* 광대 질문 */}
+        <View style = {styles.questionBlock3}> 
+            <Text style={styles.question}>당신의 광대유형에대해 알려주세요.</Text>
+            <View style ={styles.optionsRow}>
+                {['많이 도드라짐', '약간 도드라짐', '눈에띄지 않음'].map((option) => (
+                    <TouchableOpacity
+                        key={option}
+                        style = {styles.optionItemThird}
+                        onPress={() => handleSelect(option,cheekboneType,setCheekboneType)}>
+                    <Checkbox
+                        value={cheekboneType === option}
+                        color={cheekboneType === option ? '#FFBCC2' : undefined}
+                        style={styles.checkbox}
+                        />
+                    <Text style={styles.optionText}>{option}</Text>    
+                    </TouchableOpacity>
+                ))}
+            </View>
+           </View>
+           <View style={[styles.line]}/> 
+        {/* 손질난이도 질문 */}
+        <View style = {styles.questionBlock3}> 
+            <Text style={styles.question}>원하는 손질 난이도 수준을 알려주세요.</Text>
+            <View style ={styles.optionsRow}>
+                {['쉬움', '보통', '어려움'].map((option) => (
+                    <TouchableOpacity
+                        key={option}
+                        style = {styles.optionItem}
+                        onPress={() => handleSelect(option, groomingDifficulty,setGroomingDifficulty)}>
+                    <Checkbox
+                        value={groomingDifficulty === option}
+                        color={groomingDifficulty === option ? '#FFBCC2' : undefined}
                         style={styles.checkbox}
                         />
                     <Text style={styles.optionText}>{option}</Text>    
@@ -119,15 +296,70 @@ export default function DiscoverSurvey() {
             </View>
            </View>
         </View>
-        <TouchableOpacity onPress={() => router.push('/discover-camera')} style={styles.selectedButton}>
-                <View style={styles.selectedButtonContent}>
-                  <Text style={styles.selectedButtonText}>SELECT IMAGE</Text>
-                </View>
+       </ScrollView>
+       </>
+)}
+
+      {step === 2 && (
+        <View style ={{flex: 1}}>
+                  <View style = {styles.questionBlock}> 
+                    <Text style={styles.question}>당신의 선호하는 분위기를 알려주세요.</Text>
+                    <Text style={styles.question2}>최대 3개까지 선택 가능합니다.</Text>
+        
+                    <View style = {styles.grid}>
+                      {chunkArray(atmosphere, 3).map((row,rowIndex)=>(
+                          <View key = {rowIndex} style = {{flexDirection:'row', justifyContent : 'center',
+                            marginBottom : 16}}>
+                              {row.map((item)=>(
+                                  <TouchableOpacity
+                                    key= {item}
+                                    onPress={()=> toggleAtmosphere(item)}
+                                    style ={[
+                                      styles.atmosphereButton,
+                                      selectedAtmospheres.includes(item) && styles.atmosphereButtonSelected]}>
+                                    <Text style={[styles.atmosphereButtonText, selectedAtmospheres.includes(item) && 
+                                      styles.atmosphereButtonTextSelected
+                                    ]}>{item}</Text>
+                                  </TouchableOpacity>
+                              ))}
+                          </View>
+                      ))}
+                    </View>
+                   </View> 
+                   <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center'}}>
+                   <TouchableOpacity 
+                   onPress={() => router.push('/discover-camera')} 
+                   style={styles.selectedButton}>
+                     <Text style={styles.selectedButtonText}>SELECT IMAGE</Text>
+                     </TouchableOpacity>
+                   </View>
+           </View>        
+        )}
+
+       <View style = {{alignItems : 'center'}}>
+            <View style ={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',width : '90%'}}>
+              <TouchableOpacity onPress={goPrev} disabled={step ===1 }>
+                <Feather
+                  name = 'chevron-left'
+                  size = {20}
+                  color ={step ===1 ? '#ccc' : '#FFBC22'}/>
               </TouchableOpacity>
+              <Text style = {{marginHorizontal : 20 , color:'#FFBCC2'}}>
+                {step}/{totalPages}
+              </Text>
+              <TouchableOpacity onPress = {goNext} disabled= {step === totalPages}>
+                <Feather
+                  name = 'chevron-right'
+                  size={20}
+                  color = {step === totalPages ? '#ccc' : '#FFBCC2'}/>
+              </TouchableOpacity>
+            </View>
+          </View>
       </View>
+      
     </View>
   );
-}
+}  
 
 const styles = StyleSheet.create({
   header:{
@@ -194,13 +426,13 @@ const styles = StyleSheet.create({
     top:20
   },
   selectedButton: {
+    width:'90%',
     backgroundColor:'#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 100,
     borderRadius: 10,
-    marginTop: 30,
-    marginHorizontal:30 ,
     alignItems:'center',  
+    alignSelf:'center',
     bottom: 40
   },
   selectedButtonText:{
@@ -225,8 +457,13 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
   },
-  questionBlock1: {
-    marginTop:10,       
+  questionBlock: {
+    marginTop : 15,
+    marginBottom: 5,       
+    paddingHorizontal: 16,  
+    alignItems: 'center',
+  },
+  questionBlock1: {       
     paddingHorizontal: 16,  
     alignItems: 'center',
   },
@@ -237,13 +474,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   questionBlock3: {
-    marginTop : 15,
+    marginTop : 10,
     marginBottom: 5,       
     paddingHorizontal: 16,  
     alignItems: 'center',
   },
   question: {
     fontSize: 16,
+    fontWeight: '400',
+    marginTop: 15,
+    marginBottom:10 ,
+    color: '#3F414E',
+    textAlign: 'center',
+  },
+  question2: {
+    fontSize: 13,
     fontWeight: '400',
     marginTop: 15,
     marginBottom:10 ,
@@ -263,6 +508,22 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     padding:7,
   },
+  optionItemHalf: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    //alignSelf: 'center',
+    margin: 10,
+    width: '38%',
+    justifyContent: 'flex-start',
+    marginHorizontal:5,
+  },
+  optionItemThird: {
+      flexBasis: '35%',
+      margin: 5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf : 'center',
+  },
   checkbox: {
     width: 20,
     height: 20,
@@ -273,6 +534,55 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#3F414E',
   },
+  customInputWrapper: {
+    marginTop: 15,
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  customInput: {
+    width: '90%',
+    borderWidth: 1,
+    borderColor: '#B7B7B7',
+    borderRadius: 8,
+    padding: 6,
+    alignSelf : 'center',
+    marginTop:15
+  },
+  grid :{
+    alignItems:'center',
+    alignSelf : 'center'
+  },
+  row : {
+    flexDirection : 'row',
+    marginBottom : 16,
+  },
+  atmosphereButton: {
+    width: 106,
+    height: 42,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#8C8C8C',
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 8,
+    paddingHorizontal: 16,
+    marginTop : 30
+
+  },
+  atmosphereButtonSelected: {
+    backgroundColor: 'rgba(255, 188, 194, 0.5)',
+    borderColor: '#E0E0E0',
+    borderWidth:2
+  },
+  atmosphereButtonText: {
+    color: '#3F414E',
+    fontSize: 15,
+  },
+  atmosphereButtonTextSelected: {
+    fontWeight: 'bold',
+  },
 });
+
 
 

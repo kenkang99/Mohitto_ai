@@ -50,13 +50,14 @@ export default function HomeDiscover() {
           {/* 선 1 */}
           <View style = {[styles.line,{
             top:140,
-            right : 60,
+            right : 47,
+            width :'25%'
           }]}>
           </View>
           {/* 선 2 */}
           <View style = {[styles.line,{
             top:163,
-            left : 161,
+            left : 125,
             transform : [{rotate:'-50deg'}],
           }]}>
           </View>
@@ -64,7 +65,7 @@ export default function HomeDiscover() {
           {/* 점 1 */}
           <View style = {[styles.dot,{
             top:185,
-            left : 165,
+            left : 172,
           }]}>
           </View> 
           {/* 선 3 */}
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     top:20
   },
   imageContainer :{
-    width:330,
+    width:'90%',
     height:350,
     top : 30,
     backgroundColor:'#FFE0E3',
@@ -181,6 +182,7 @@ const styles = StyleSheet.create({
     height : 300,
   },
   startButton: {
+    width:'90%',
     backgroundColor:'#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 100,
@@ -211,11 +213,11 @@ const styles = StyleSheet.create({
     height :2,
     backgroundColor:'white'
   },
-dot : {
-  position:'absolute',
-  width : 8,
-  height : 8,
-  borderRadius : 4,
-  backgroundColor:'white',
-},
+  dot : {
+    position:'absolute',
+    width : 8,
+    height : 8,
+    borderRadius : 4,
+    backgroundColor:'white',
+  },
 });
