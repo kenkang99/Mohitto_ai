@@ -127,8 +127,8 @@ const styles = StyleSheet.create({
     top:20
   },
   imageContainer :{
-    width:330,
-    height:350,
+    width:'90%',
+    height:'63%',
     top : 30,
     backgroundColor:'#FFE0E3',
     justifyContent : 'center',
@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     height : 300,
   },
   startButton: {
+    width:'90%',
     backgroundColor:'#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 100,

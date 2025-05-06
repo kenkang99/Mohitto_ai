@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   fbButton: {
+    width:'90%',
     backgroundColor: '#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 75,
@@ -169,6 +170,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   GgButton: {
+    width:'90%',
     paddingVertical: 17,
     paddingHorizontal: 73,
     borderRadius: 10,
@@ -193,6 +195,7 @@ const styles = StyleSheet.create({
     color: '#3F414E',
   },
   submitButton: {
+    width:'90%',
     backgroundColor: '#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 160,

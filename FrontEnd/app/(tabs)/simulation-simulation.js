@@ -64,7 +64,7 @@ export default function SimulationSimulation() {
         </View>
         <View style ={styles.horizontalLine}/>
           
-          <Text style = {styles.text}>다음과 같은 헤어를 추천합니다.</Text>
+          
           <Text style = {styles.styleText}>레이어드컷</Text>
           <View style={styles.imageContainer}>
             <Image source={require('../../assets/example_result2.png')}style ={styles.exampleImage}/>   
@@ -85,7 +85,7 @@ export default function SimulationSimulation() {
           </Text>
           <Text style={{color:'#FFBCC2',textAlign:'center',marginTop:10}}>hairshop</Text>
           <View style = {{alignItems : 'center'}}>
-            <View style ={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',width : 300}}>
+            <View style ={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',width : '90%'}}>
               <TouchableOpacity onPress={goPrev} disabled={step ===1 }>
                 <Feather
                   name = 'chevron-left'
@@ -177,10 +177,11 @@ const styles = StyleSheet.create({
   styleText:{
     textAlign:'center',
     fontSize : 24,
-    marginTop:40
+    marginTop:40,
+    marginBottom :20,
   },
   imageContainer :{
-    width:330,
+    width:'90%',
     height:300,
     marginTop : 15,
     borderColor:'#FFBCC2',
@@ -193,8 +194,8 @@ const styles = StyleSheet.create({
   },
   exampleImage :{
     resizeMode : 'cover',
-    width : 325,
-    height : 300,
+    width : '100%',
+    height : '100%',
   },
   resultText : {
     textAlign : 'center',

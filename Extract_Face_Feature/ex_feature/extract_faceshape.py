@@ -1,4 +1,4 @@
-# extract_face_feature.py
+# extract_faceshape.py
 import os
 import cv2
 import torch
@@ -36,7 +36,7 @@ transform = transforms.Compose([
     transforms.Normalize(mean=feature_extractor.image_mean, std=feature_extractor.image_std)
 ])
 
-def predict(image):
+def predict_faceshape(image):
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     # 턱선 시각화

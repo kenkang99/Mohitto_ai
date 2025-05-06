@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     top:20
   },
   imageContainer :{
-    width:330,
+    width:'90%',
     height:300,
     top : 30,
     borderColor:'#FFBCC2',
@@ -147,10 +147,11 @@ const styles = StyleSheet.create({
   },
   exampleImage :{
     resizeMode : 'cover',
-    width : 325,
-    height : 300,
+    width : '100%',
+    height : '100%',
   },
   startButton: {
+    width:'90%',
     backgroundColor:'#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 100,

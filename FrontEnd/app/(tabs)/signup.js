@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   fbButton: {
+    width:'90%',
     backgroundColor: '#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 75,
@@ -197,6 +198,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   GgButton: {
+    width:'90%',
     paddingVertical: 17,
     paddingHorizontal: 73,
     borderRadius: 10,
@@ -234,6 +236,7 @@ const styles = StyleSheet.create({
     color: '#FFBCC2',
   },
   submitButton: {
+    width:'90%',
     backgroundColor: '#FFBCC2',
     paddingVertical: 17,
     paddingHorizontal: 130,
@@ -257,6 +260,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   inputField: {
+    width:'90%',
     flex: 1,
     fontSize: 16,
   },
