@@ -2,88 +2,105 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, EmailStr
 from jose import jwt
 from datetime import datetime, timedelta
-from passlib.hash import bcrypt  # 해싱 라이브러리
+from passlib.hash import bcrypt
+from sqlalchemy.orm import Session
 
+# DB 세션 및 사용자 모델 import
+from core.database import get_db
+from models.user import User
+
+# JWT 기반 사용자 인증 의존성
 from core.security import get_current_user
 
+# API 라우터 객체 생성
 router = APIRouter()
 
-# 모의 사용자 저장소
-mock_users = [
-    {
-        "user_id": 1,
-        "name": "홍길동",
-        "email": "test@example.com",
-        "password": bcrypt.hash("password123"),  # 해시 + 솔트 된 비밀번호
-        "created_at": "2024-12-01 12:00:00"
-    }
-]
+# JWT 관련 설정값
+SECRET_KEY = "your_secret_key"  # 토큰 서명용 키 (배포 시에는 환경변수로 관리 필요)
+ALGORITHM = "HS256"             # JWT 알고리즘
+ACCESS_TOKEN_EXPIRE_MINUTES = 60  # 토큰 유효 시간 (분)
 
-# JWT 설정
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+# ─────────────────────────────────────────────
+# 데이터 클래스 (Pydantic 기반)
+# ─────────────────────────────────────────────
 
-# 요청 바디 클래스
+# 회원가입 요청 형식 정의
 class SignupRequest(BaseModel):
     email: EmailStr
     password: str
     nickname: str
 
+# 로그인 요청 형식 정의
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+# 토큰 응답 형식 정의
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-# /signup
+# ─────────────────────────────────────────────
+# 회원가입 API
+# ─────────────────────────────────────────────
 @router.post("/signup")
-def signup(request: SignupRequest):
-    for user in mock_users:
-        if user["email"] == request.email:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이미 가입된 이메일입니다."
-            )
+def signup(request: SignupRequest, db: Session = Depends(get_db)):
+    # 이미 등록된 이메일인지 확인
+    existing_user = db.query(User).filter(User.email == request.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="이미 가입된 이메일입니다."
+        )
 
+    # 비밀번호 해싱
     hashed_password = bcrypt.hash(request.password)
 
-    new_user = {
-        "user_id": len(mock_users) + 1,
-        "name": request.nickname,
-        "email": request.email,
-        "password": hashed_password,
-        "created_at": datetime.utcnow().isoformat()
-    }
-    mock_users.append(new_user)
+    # 새로운 사용자 객체 생성
+    new_user = User(
+        email=request.email,
+        password=hashed_password,
+        name=request.nickname
+    )
 
-    return {"success": True, "user_id": new_user["user_id"]}
+    # DB에 저장
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
 
-# /login
+    return {"success": True, "user_id": new_user.user_id}
+
+# ─────────────────────────────────────────────
+# 로그인 API
+# ─────────────────────────────────────────────
 @router.post("/login", response_model=TokenResponse)
-def login(request: LoginRequest):
-    user = next((u for u in mock_users if u["email"] == request.email), None)
+def login(request: LoginRequest, db: Session = Depends(get_db)):
+    # 사용자를 이메일로 조회
+    user = db.query(User).filter(User.email == request.email).first()
 
-    if not user or not bcrypt.verify(request.password, user["password"]):
+    # 사용자 존재 여부 및 비밀번호 확인
+    if not user or not bcrypt.verify(request.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="잘못된 로그인 정보입니다."
         )
 
+    # JWT 토큰 생성
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {
-        "sub": str(user["user_id"]),
-        "exp": expire
+        "sub": str(user.user_id),  # 토큰 식별자
+        "exp": expire              # 만료 시간
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
     return {"access_token": token, "token_type": "bearer"}
 
-# /user/profile
+# ─────────────────────────────────────────────
+# 사용자 프로필 조회 API (JWT 인증 필요)
+# ─────────────────────────────────────────────
 @router.get("/user/profile")
 def get_profile(current_user: dict = Depends(get_current_user)):
+    # security.py의 get_current_user가 인증된 사용자 정보를 반환
     return {
         "user_id": current_user["user_id"],
         "email": current_user["email"],
