@@ -8,6 +8,7 @@ import uuid
 from datetime import datetime
 from db_utils import get_latest_request, save_result_to_db
 from ex_feature.result import generate_summary
+from api_notifier import notify_main_api
 
 # 입력 인자 (API로 부터 받은 정보들: 밑에 주석으로 추후에 api -> 모델 로직 수정후 대체)
 user_id = int(sys.argv[1])
@@ -76,5 +77,9 @@ if __name__ == "__main__":
     print(f"✅ 추천 결과 저장 완료: {file_name}")
     
     ##### DB에 result 추가
-save_result_to_db(result_dict, int(request_id))
-print(f"✅ 분석 결과 DB 저장 완료 (request_id={request_id})")
+    save_result_to_db(result_dict, int(request_id))
+    print(f"✅ 분석 결과 DB 저장 완료 (request_id={request_id})")
+    
+    ##### main api 호출
+    notify_main_api(user_id, int(request_id))
+    print(f"✅ Main API에 분석 완료 알림 전송 완료 (user_id={user_id}, request_id={request_id})")
