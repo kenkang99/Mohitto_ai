@@ -1,0 +1,15 @@
+# 가상환경
+face_feature_venv/
+# macOS 메타데이터
+.DS_Store
+# Python 캐시
+__pycache__/
+*.py[cod]
+# sample 이미지
+*.jpg
+*.jpeg
+*.png
+#rds info
+rds_config.py
+# 모델 가중치
+ex_feature/model/Best_Model.pth

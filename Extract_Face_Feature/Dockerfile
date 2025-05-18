@@ -14,4 +14,6 @@ COPY db_utils.py .
 COPY rds_config.py .
 COPY ex_feature/ ./ex_feature/
 
-CMD ["python", "main.py"]
+CMD ["python", "main.py", "1", "1"] 
+# 지금은 1,1 로 강제
+# ENTRYPOINT ["python", "main.py"] # 추후 api로 전달되면 수정
