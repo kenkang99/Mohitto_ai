@@ -1,0 +1,25 @@
+# Python 캐시 및 빌드 파일
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+
+# 가상환경
+venv/
+.env
+.env.*
+
+# Git 관련
+.git/
+.gitignore
+
+# IDE/Editor 관련
+.vscode/
+*.log
+
+# Docker 자체
+Dockerfile
+docker-compose.yml

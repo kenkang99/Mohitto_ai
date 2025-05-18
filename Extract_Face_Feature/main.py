@@ -1,10 +1,19 @@
 import cv2
 import requests
+import sys
+import os
 import numpy as np
 import json
 import uuid
-from db_utils import get_latest_request
+from datetime import datetime
+from db_utils import get_latest_request, save_result_to_db
 from ex_feature.result import generate_summary
+
+# 입력 인자 (API로 부터 받은 정보들: 밑에 주석으로 추후에 api -> 모델 로직 수정후 대체)
+user_id = int(sys.argv[1])
+request_id = int(sys.argv[2])
+# user_id = int(os.environ["USER_ID"])  
+# request_id = int(os.environ["REQUEST_ID"])
 
 # ✅ S3 URL에서 이미지 불러오기
 def read_image_from_url(url):
@@ -18,8 +27,9 @@ def read_image_from_url(url):
     return image
 
 if __name__ == "__main__":
-    info = get_latest_request()
+    info = get_latest_request(user_id, request_id)
 
+    print("[DEBUG] DB에서 가져온 요청 정보:", info)
     if not info:
         raise ValueError("요청 정보를 찾을 수 없습니다.")
 
@@ -40,8 +50,12 @@ if __name__ == "__main__":
         info["mood"],
         info["difficulty"]
     )
-
+    
+    result_dict["request_id"] = request_id
+    result_dict["성별"] = info["sex"]
+    
     final_result = {
+        "request_id": request_id,
         "input": {
             "user_image_url": info["user_image_url"],
             "hair_type": info["hair_type"],
@@ -60,3 +74,7 @@ if __name__ == "__main__":
         json.dump(final_result, f, ensure_ascii=False, indent=2)
 
     print(f"✅ 추천 결과 저장 완료: {file_name}")
+    
+    ##### DB에 result 추가
+save_result_to_db(result_dict, int(request_id))
+print(f"✅ 분석 결과 DB 저장 완료 (request_id={request_id})")

@@ -1,0 +1,30 @@
+{
+  "request_id": "1",
+  "input": {
+    "user_image_url": "https://sh-2025-1-dscd-s5-1.s3.ap-northeast-2.amazonaws.com/user_image_dic/test1_1.jpeg",
+    "hair_type": "C",
+    "hair_length": "M",
+    "dyed": "0",
+    "forehead_shape": "normal",
+    "cheekbone": "high",
+    "mood": "natural",
+    "difficulty": "medium"
+  },
+  "result": {
+    "id": "1",
+    "모발": "C",
+    "길이": "M",
+    "염색": "O",
+    "이마 모양": "normal",
+    "광대": "high",
+    "기분": "natural",
+    "관리 난이도": "medium",
+    "얼굴형": "둥근형",
+    "피부색": "#BD9A8E",
+    "이마 평가": "좁은 편에 속합니다.",
+    "중안부 평가": "넓은 편에 속합니다.",
+    "하안부 평가": "평균적인 크기에 속합니다.",
+    "request_id": "1",
+    "성별": "M"
+  }
+}
