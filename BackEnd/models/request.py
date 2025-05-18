@@ -1,7 +1,7 @@
 # models/request.py
 # 사용자 설문 + 이미지 분석 요청 저장
 
-from sqlalchemy import Column, BigInteger, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, BigInteger, String, Text, DateTime, ForeignKey, Integer
 from core.database import Base
 from datetime import datetime
 
@@ -16,6 +16,10 @@ class Request(Base):
     location = Column(String(20), nullable=False)
     cheekbone = Column(String(20), nullable=False)
     mood = Column(String(20), nullable=False)
+    dyed = Column(Integer, nullable=False)
+    forehead_shape = Column(String(20), nullable=False)
+    difficulty = Column(String(20), nullable=False)
+    has_bangs = Column(Integer, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # 외래키: 사용자 ID
