@@ -4,8 +4,8 @@ from .facemesh import extract_facial_ratios
 from .extract_faceshape import predict_faceshape
 from .stone_classifier import extract_face_colors
 
-def extract_feature(image_path):
-    image = cv2.imread(image_path)
+def extract_feature(image):
+    #image = cv2.imread(image)
     if image is None:
         print(f"[ERROR] 이미지 로드 실패")
         return {"error": "이미지 로드 실패"}
@@ -13,6 +13,6 @@ def extract_feature(image_path):
     # 얼굴형, 피부색, 비율 추출
     faceshape = predict_faceshape(image)
     top_ratio, mid_ratio, down_ratio = extract_facial_ratios(image)
-    skin_tone = extract_face_colors(image_path)
+    skin_tone = extract_face_colors(image)
 
     return faceshape, top_ratio, mid_ratio, down_ratio, skin_tone

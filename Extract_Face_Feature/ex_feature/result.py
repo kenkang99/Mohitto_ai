@@ -2,10 +2,9 @@
 
 from .evaluate import evaluate_feature
 
-def generate_summary(image_path, id, curl, length, dyeing, forehead, clown, mood, care_level):
-
-    # 컴퓨터 추출 정보 불러오기
-    faceshape_eval, skin_tone, forehead_eval, central_eval, low_eval = evaluate_feature(image_path)
+def generate_summary(image, id, curl, length, dyeing, forehead, clown, mood, care_level):
+    
+    faceshape_eval, skin_tone, forehead_eval, central_eval, low_eval = evaluate_feature(image)
 
     result = {
         "id" : id,

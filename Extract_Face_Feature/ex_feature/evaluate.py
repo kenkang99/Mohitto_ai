@@ -6,10 +6,10 @@ from .extract_faceshape import predict_faceshape
 from .stone_classifier import extract_face_colors
 from .extract_face_feature import extract_feature
 
-def evaluate_feature(image_path):
+def evaluate_feature(image):
 
     # 이미지 정보 추출
-    faceshape, top_ratio, mid_ratio, down_ratio, skin_tone = extract_feature(image_path)
+    faceshape, top_ratio, mid_ratio, down_ratio, skin_tone = extract_feature(image)
 
     # 얼굴형 생성
     faceshape_eval = ""
