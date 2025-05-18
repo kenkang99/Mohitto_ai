@@ -1,7 +1,7 @@
 # main.py
-
 from fastapi import FastAPI, Depends
 from routers import auth, user, styles, salons
+from routers.analyze import router as analyze_router
 from core.database import engine, Base, get_db
 from sqlalchemy import text
 
@@ -29,6 +29,7 @@ app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(styles.router)
 app.include_router(salons.router)
+app.include_router(analyze_router)
 
 if __name__ == "__main__":
     import uvicorn

@@ -13,7 +13,7 @@ COPY main.py .
 COPY db_utils.py .
 COPY rds_config.py .
 COPY ex_feature/ ./ex_feature/
+COPY api_notifier.py .  
+# FastAPI에서 알림용 함수로 쓰기 때문
 
-CMD ["python", "main.py", "1", "1"] 
-# 지금은 1,1 로 강제
-# ENTRYPOINT ["python", "main.py"] # 추후 api로 전달되면 수정
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
