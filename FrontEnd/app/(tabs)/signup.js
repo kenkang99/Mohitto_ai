@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import Checkbox from 'expo-checkbox';
 import { Ionicons } from '@expo/vector-icons';
+import { authService } from '../services/authService';
 
 function TermsCheck({ isChecked, setChecked }) {
   return (
@@ -25,26 +26,54 @@ export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isChecked, setChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const isValidName = (name) => name.trim().length >=2;
+  const isValidName = (name) => name.trim().length >= 2;
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (!email.trim()) {
-      alert('이메일을 입력해 주세요.');
+      Alert.alert('알림', '이메일을 입력해 주세요.');
       return;
     }
     if (!isValidEmail(email)) {
-      alert('이메일 형식이 올바르지 않습니다.');
+      Alert.alert('알림', '이메일 형식이 올바르지 않습니다.');
       return;
     }
-    console.log('회원가입 정보:', { name, email, password });
-    alert('회원가입 완료!');
-    router.back();
+    if (!name.trim()) {
+      Alert.alert('알림', '이름을 입력해 주세요.');
+      return;
+    }
+    if (!isValidName(name)) {
+      Alert.alert('알림', '이름은 2자 이상이어야 합니다.');
+      return;
+    }
+    if (!password.trim()) {
+      Alert.alert('알림', '비밀번호를 입력해 주세요.');
+      return;
+    }
+    if (!isChecked) {
+      Alert.alert('알림', '개인정보 처리방침에 동의해 주세요.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log('회원가입 시도:', { email, password, name });
+      const response = await authService.signup(email, password, name);
+      console.log('회원가입 응답:', response);
+      Alert.alert('성공', '회원가입이 완료되었습니다.');
+      router.push('/signin');
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      Alert.alert('오류', error.detail || error.message || '회원가입에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);

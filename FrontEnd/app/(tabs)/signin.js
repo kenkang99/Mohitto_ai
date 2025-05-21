@@ -1,13 +1,15 @@
 // app/signup.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { authService } from '../services/authService';
 
 export default function SigninScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,25 +18,30 @@ export default function SigninScreen() {
   
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   
-  const handleSignin = () => {
+  const handleSignin = async () => {
     if (!email.trim()) {
-      alert('이메일을 입력해 주세요.');
+      Alert.alert('알림', '이메일을 입력해 주세요.');
       return;
     }
     if (!isValidEmail(email)) {
-      alert('이메일 형식이 올바르지 않습니다.');
+      Alert.alert('알림', '이메일 형식이 올바르지 않습니다.');
       return;
     }
     if (!password.trim()) {
-      alert('비밀번호를 입력해 주세요.');
-      return;
-    }
-    if (password !== '1234') {
-      alert('비밀번호가 올바르지 않습니다.');
+      Alert.alert('알림', '비밀번호를 입력해 주세요.');
       return;
     }
 
-    // router.push('/welcome');
+    try {
+      setIsLoading(true);
+      await authService.login(email, password);
+      Alert.alert('성공', '로그인되었습니다.');
+      router.push('/welcome');
+    } catch (error) {
+      Alert.alert('오류', error.detail || '로그인에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
