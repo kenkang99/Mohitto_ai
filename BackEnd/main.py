@@ -1,11 +1,34 @@
 # main.py
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from routers import auth, user, styles, salons
 from routers.analyze import router as analyze_router
 from core.database import engine, Base, get_db
 from sqlalchemy import text
 
 app = FastAPI()
+
+# CORS 설정
+origins = [
+    "http://localhost:3000",
+    "http://localhost:19006",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:19006",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://10.0.2.2:8000",
+    "exp://localhost:19000",
+    "exp://127.0.0.1:19000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
 
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)
@@ -33,4 +56,4 @@ app.include_router(analyze_router)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)  # host를 0.0.0.0으로 변경
