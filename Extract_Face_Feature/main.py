@@ -45,6 +45,9 @@ def run_extract(data: dict = Body(...)):
         info["mood"],
         info["difficulty"]
     )
+    result_dict["top_rate"] = result_dict.get("이마 평가")
+    result_dict["middle_rate"] = result_dict.get("중안부 평가")
+    result_dict["bottom_rate"] = result_dict.get("하안부 평가")
     result_dict["request_id"] = request_id
     result_dict["성별"] = info["sex"]
 
