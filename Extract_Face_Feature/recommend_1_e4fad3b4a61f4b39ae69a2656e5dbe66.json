@@ -1,0 +1,33 @@
+{
+  "request_id": 1,
+  "input": {
+    "user_image_url": "https://sh-2025-1-dscd-s5-1.s3.ap-northeast-2.amazonaws.com/user_image_dic/test1_1.jpeg",
+    "hair_type": "직모",
+    "hair_length": "롱",
+    "dyed": "O",
+    "forehead_shape": "둥근형",
+    "cheekbone": "약간 도드라짐",
+    "mood": "세련된",
+    "difficulty": "쉬움"
+  },
+  "result": {
+    "id": "1",
+    "모발": "직모",
+    "길이": "롱",
+    "염색": "O",
+    "이마 모양": "둥근형",
+    "광대": "약간 도드라짐",
+    "기분": "세련된",
+    "관리 난이도": "쉬움",
+    "얼굴형": "둥근형",
+    "피부색": "#BD9A8E",
+    "이마 평가": "좁은 편에 속합니다.",
+    "중안부 평가": "넓은 편에 속합니다.",
+    "하안부 평가": "평균적인 크기에 속합니다.",
+    "top_rate": "좁은 편에 속합니다.",
+    "middle_rate": "넓은 편에 속합니다.",
+    "bottom_rate": "평균적인 크기에 속합니다.",
+    "request_id": 1,
+    "성별": "남성"
+  }
+}
