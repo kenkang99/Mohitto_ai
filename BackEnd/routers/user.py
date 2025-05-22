@@ -5,6 +5,14 @@ from fastapi import APIRouter, Depends, Form, File, UploadFile, HTTPException
 from pydantic import BaseModel
 from typing import List
 from core.security import get_current_user  # 공통 인증 모듈 사용
+import os
+import boto3
+from botocore.exceptions import NoCredentialsError
+import uuid
+from sqlalchemy.orm import Session
+from models.request import Request
+from core.database import get_db
+from datetime import datetime
 
 router = APIRouter()
 
@@ -60,25 +68,83 @@ def get_user_hairshops(current_user: dict = Depends(get_current_user)):
         }
     ]
 
+# S3 업로드 함수
+def upload_image_to_s3(file, bucket, region, access_key, secret_key, filename=None):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
+        region_name=region
+    )
+    if filename is None:
+        filename = f"user_images/{uuid.uuid4()}_{file.filename}"
+    try:
+        s3.upload_fileobj(
+            file.file,
+            bucket,
+            filename,
+            ExtraArgs={"ContentType": file.content_type}
+        )
+        url = f"https://{bucket}.s3.{region}.amazonaws.com/{filename}"
+        return url
+    except NoCredentialsError:
+        raise Exception("AWS credentials not available")
+
 # 얼굴 분석 요청 (설문 + 이미지)
 @router.post("/analyze-face")
 def analyze_face(
-    gender: str = Form(...),
-    hair_condition: str = Form(...),
-    length: str = Form(...),
+    hair_length: str = Form(...),
+    hair_type: str = Form(...),
+    sex: str = Form(...),
+    location: str = Form(...),
+    cheekbone: str = Form(...),
+    mood: str = Form(...),
+    dyed: str = Form(...),
+    forehead_shape: str = Form(...),
+    difficulty: str = Form(...),
+    has_bangs: str = Form(...),
     image: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
-    # 실제 구현 시 request_table + result_table에 저장 필요
+    # 1. request_table에 임시 저장 (user_image_url은 빈 값)
+    req = Request(
+        user_id=current_user["user_id"],
+        hair_length=hair_length,
+        hair_type=hair_type,
+        sex=sex,
+        location=location,
+        user_image_url="",  # 임시
+        created_at=datetime.utcnow(),
+        cheekbone=cheekbone,
+        mood=mood,
+        dyed=dyed,
+        forehead_shape=forehead_shape,
+        difficulty=difficulty,
+        has_bangs=has_bangs
+    )
+    db.add(req)
+    db.commit()
+    db.refresh(req)
+    # 2. S3에 업로드 (user_image_dic/{user_id}_{request_id}.png)
+    filename = f"user_image_dic/{current_user['user_id']}_{req.request_id}.png"
+    s3_url = upload_image_to_s3(
+        image,
+        bucket=os.getenv("AWS_S3_BUCKET", "YOUR_BUCKET_NAME"),
+        region=os.getenv("AWS_S3_REGION", "YOUR_REGION"),
+        access_key=os.getenv("AWS_ACCESS_KEY_ID", "YOUR_ACCESS_KEY"),
+        secret_key=os.getenv("AWS_SECRET_ACCESS_KEY", "YOUR_SECRET_KEY"),
+        filename=filename
+    )
+    # 3. user_image_url 업데이트
+    req.user_image_url = s3_url
+    db.commit()
+    db.refresh(req)
     return {
         "message": "얼굴 분석이 완료되었습니다.",
         "user_id": current_user["user_id"],
-        "survey": {
-            "gender": gender,
-            "hair_condition": hair_condition,
-            "length": length
-        },
-        "image_filename": image.filename
+        "request_id": req.request_id,
+        "image_url": s3_url
     }
 
 # 추천 스타일 리스트 조회 (mock)
