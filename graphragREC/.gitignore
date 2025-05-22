@@ -182,3 +182,6 @@ pyrightconfig.json
 
 # hiar_data 폴더 추가
 hair_data/
+__pycache__/
+*.pyc
+logs/
