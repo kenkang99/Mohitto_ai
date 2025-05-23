@@ -5,6 +5,7 @@ from routers import auth, user, styles, salons
 from routers.analyze import router as analyze_router
 from core.database import engine, Base, get_db
 from sqlalchemy import text
+import models
 
 app = FastAPI()
 
