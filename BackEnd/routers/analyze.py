@@ -69,17 +69,29 @@ def save_recommendation(payload: RecommendationPayload, db: Session = Depends(ge
         db.flush()
 
         for shop in rec.hair_shops:
+            # db.add(HairshopRecommendation(
+            #     hairshop=shop.hairshop,
+            #     is_saved=0,
+            #     latitude=shop.latitude,
+            #     longitude=shop.longitude,
+            #     final_menu_price=shop.final_menu_price,
+            #     review_count=shop.review_count,
+            #     mean_score=shop.mean_score,
+            #     hair_rec_id=hair_rec.hair_rec_id,
+            #     user_id=user_id
+            # ))
             db.add(HairshopRecommendation(
-                hairshop=shop.hairshop,
+                hairshop=shop.hairshop or "미정",
                 is_saved=0,
-                latitude=shop.latitude,
-                longitude=shop.longitude,
-                final_menu_price=shop.final_menu_price,
-                review_count=shop.review_count,
-                mean_score=shop.mean_score,
+                latitude=shop.latitude or 0.0,
+                longitude=shop.longitude or 0.0,
+                final_menu_price=shop.final_menu_price or 0,
+                review_count=shop.review_count or 0,
+                mean_score=shop.mean_score or 0.0,
                 hair_rec_id=hair_rec.hair_rec_id,
                 user_id=user_id
             ))
 
     db.commit()
+    print(f"[INFO] user_id={user_id}, request_id={request_id} 추천 결과 DB 저장 완료")
     return {"message": "추천 결과 DB 저장 완료"}

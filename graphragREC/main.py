@@ -5,6 +5,7 @@ from typing import List
 import json
 import numpy as np
 import pandas as pd
+import requests
 
 from first_recommendation import get_first_recommendations
 from final_recommendation import get_final_recommendations
@@ -74,7 +75,7 @@ def recommend(user_input: UserRequest):
         # 최종 결과 구조화
         final_result = {
             "user_info": {
-                "user_id": user_input.user_id,
+                "user_id": int(user_input.user_id),
                 "request_id": user_input.request_id
             },
             "recommendations": []
