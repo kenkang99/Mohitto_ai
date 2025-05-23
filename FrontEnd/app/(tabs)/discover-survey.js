@@ -1,13 +1,16 @@
-import React, {  useState } from 'react';
+import React, {  useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView,TextInput,Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import Checkbox from 'expo-checkbox';
 import {Feather} from '@expo/vector-icons'
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../config/api';
 
 export default function DiscoverSurvey() {
   const [step, setStep] = useState(1);
   const totalPages = 2;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState(null);
   
 
   const router = useRouter();
@@ -61,6 +64,146 @@ export default function DiscoverSurvey() {
   return result
 };
 
+useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('userToken');
+      if (!storedToken) {
+        Alert.alert('알림', '로그인이 필요한 서비스입니다.');
+        router.replace('/login');
+        return;
+      }
+      setToken(storedToken);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('인증 확인 중 오류:', error);
+      Alert.alert('오류', '인증 확인 중 문제가 발생했습니다.');
+      router.replace('/login');
+    }
+  };
+
+  checkAuth();
+}, []);
+
+const handleSubmit = async () => {
+  try {
+    // 토큰 재확인
+    const currentToken = await AsyncStorage.getItem('userToken');
+    if (!currentToken) {
+      Alert.alert('알림', '로그인이 필요한 서비스입니다.');
+      router.replace('/login');
+      return;
+    }
+
+    // 필수 필드 검증
+    if (!selectedGender || !selectedHairType || !customInput || !hasBang || 
+        !isDyed || !foreheadType || !cheekboneType || !groomingDifficulty || 
+        selectedMood.length === 0) {
+      Alert.alert('오류', '모든 설문 항목을 입력해주세요.');
+      return;
+    }
+
+    // 현재 상태값 로깅
+    console.log('현재 상태값:', {
+      selectedGender,
+      selectedHairType,
+      customInput,
+      hasBang,
+      isDyed,
+      foreheadType,
+      cheekboneType,
+      groomingDifficulty,
+      selectedMood,
+      maleHairLength,
+      femaleHairLength
+    });
+
+    const surveyData = {
+      hair_length: selectedGender === '남성' ? maleHairLength : femaleHairLength,
+      hair_type: selectedHairType,
+      sex: selectedGender,
+      location: customInput,
+      cheekbone: cheekboneType,
+      mood: selectedMood.join(','),
+      dyed: isDyed,
+      forehead_shape: foreheadType,
+      difficulty: groomingDifficulty,
+      has_bangs: hasBang,
+    };
+
+    console.log('전달할 설문 데이터:', surveyData);
+
+    // AsyncStorage에 저장하기 전에 기존 데이터 삭제
+    await AsyncStorage.removeItem('surveyData');
+
+    // 설문 데이터를 AsyncStorage에 저장
+    try {
+      await AsyncStorage.setItem('surveyData', JSON.stringify(surveyData));
+      console.log('설문 데이터 저장 완료');
+      
+      // 저장된 데이터 확인
+      const savedData = await AsyncStorage.getItem('surveyData');
+      console.log('저장된 설문 데이터 확인:', savedData);
+      
+      if (!savedData) {
+        throw new Error('데이터 저장 실패');
+      }
+
+      // 상태 초기화
+      setSelectedGender(null);
+      setSelectedHairtype(null);
+      setFemaleHairLength(null);
+      setMaleHairLength(null);
+      setHasBang(null);
+      setIsDyed(null);
+      setForeheadType(null);
+      setCheekboneType(null);
+      setGroomingDifficulty(null);
+      setSelectedMood([]);
+      setCustomInput('');
+
+      // 카메라 페이지로 이동
+      router.push('/discover-camera');
+    } catch (storageError) {
+      console.error('설문 데이터 저장 중 오류:', storageError);
+      Alert.alert('오류', '설문 데이터 저장 중 문제가 발생했습니다.');
+      return;
+    }
+  } catch (error) {
+    console.error('설문 제출 중 오류:', error);
+    Alert.alert('오류', '설문 제출 중 문제가 발생했습니다.');
+  }
+};
+
+// 컴포넌트 마운트 시 이전 데이터 삭제
+useEffect(() => {
+  const cleanup = async () => {
+    try {
+      await AsyncStorage.removeItem('surveyData');
+      console.log('이전 설문 데이터 삭제 완료');
+    } catch (error) {
+      console.error('데이터 삭제 중 오류:', error);
+    }
+  };
+  cleanup();
+}, []);
+
+// 컴포넌트 언마운트 시 데이터 초기화
+useEffect(() => {
+  return () => {
+    setSelectedGender(null);
+    setSelectedHairtype(null);
+    setFemaleHairLength(null);
+    setMaleHairLength(null);
+    setHasBang(null);
+    setIsDyed(null);
+    setForeheadType(null);
+    setCheekboneType(null);
+    setGroomingDifficulty(null);
+    setSelectedMood([]);
+    setCustomInput('');
+  };
+}, []);
 
   return (
     <View style={{ flex: 1 ,backgroundColor: 'white'}}>
@@ -144,7 +287,7 @@ export default function DiscoverSurvey() {
             <View style = {styles.questionBlock1}>
             <Text style ={styles.question}>현재 앞머리가 있으신가요?</Text>
             <View style={styles.optionsRow}>
-                {['O', 'X'].map((option) => (
+                {['있음', '없음'].map((option) => (
                     <TouchableOpacity
                         key={option}
                         style ={styles.optionItem}
@@ -328,7 +471,7 @@ export default function DiscoverSurvey() {
                    </View> 
                    <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center'}}>
                    <TouchableOpacity 
-                   onPress={() => router.push('/discover-camera')} 
+                   onPress={handleSubmit}
                    style={styles.selectedButton}>
                      <Text style={styles.selectedButtonText}>SELECT IMAGE</Text>
                      </TouchableOpacity>

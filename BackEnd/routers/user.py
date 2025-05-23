@@ -92,7 +92,7 @@ def upload_image_to_s3(file, bucket, region, access_key, secret_key, filename=No
 
 # 얼굴 분석 요청 (설문 + 이미지)
 @router.post("/analyze-face")
-def analyze_face(
+async def analyze_face(
     hair_length: str = Form(...),
     hair_type: str = Form(...),
     sex: str = Form(...),
@@ -107,45 +107,59 @@ def analyze_face(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # 1. request_table에 임시 저장 (user_image_url은 빈 값)
-    req = Request(
-        user_id=current_user["user_id"],
-        hair_length=hair_length,
-        hair_type=hair_type,
-        sex=sex,
-        location=location,
-        user_image_url="",  # 임시
-        created_at=datetime.utcnow(),
-        cheekbone=cheekbone,
-        mood=mood,
-        dyed=dyed,
-        forehead_shape=forehead_shape,
-        difficulty=difficulty,
-        has_bangs=has_bangs
-    )
-    db.add(req)
-    db.commit()
-    db.refresh(req)
-    # 2. S3에 업로드 (user_image_dic/{user_id}_{request_id}.png)
-    filename = f"user_image_dic/{current_user['user_id']}_{req.request_id}.png"
-    s3_url = upload_image_to_s3(
-        image,
-        bucket=os.getenv("AWS_S3_BUCKET", "YOUR_BUCKET_NAME"),
-        region=os.getenv("AWS_S3_REGION", "YOUR_REGION"),
-        access_key=os.getenv("AWS_ACCESS_KEY_ID", "YOUR_ACCESS_KEY"),
-        secret_key=os.getenv("AWS_SECRET_ACCESS_KEY", "YOUR_SECRET_KEY"),
-        filename=filename
-    )
-    # 3. user_image_url 업데이트
-    req.user_image_url = s3_url
-    db.commit()
-    db.refresh(req)
-    return {
-        "message": "얼굴 분석이 완료되었습니다.",
-        "user_id": current_user["user_id"],
-        "request_id": req.request_id,
-        "image_url": s3_url
-    }
+    try:
+        # 1. request_table에 임시 저장 (user_image_url은 빈 값)
+        req = Request(
+            user_id=current_user["user_id"],
+            hair_length=hair_length,
+            hair_type=hair_type,
+            sex=sex,
+            location=location,
+            user_image_url="",  # 임시
+            created_at=datetime.utcnow(),
+            cheekbone=cheekbone,
+            mood=mood,
+            dyed=dyed,
+            forehead_shape=forehead_shape,
+            difficulty=difficulty,
+            has_bangs=has_bangs
+        )
+        db.add(req)
+        db.commit()
+        db.refresh(req)
+
+        # 2. S3에 업로드 (user_image_dic/{user_id}_{request_id}.png)
+        filename = f"user_image_dic/{current_user['user_id']}_{req.request_id}.png"
+        s3_url = upload_image_to_s3(
+            image,
+            bucket=os.getenv("AWS_S3_BUCKET", "YOUR_BUCKET_NAME"),
+            region=os.getenv("AWS_S3_REGION", "YOUR_REGION"),
+            access_key=os.getenv("AWS_ACCESS_KEY_ID", "YOUR_ACCESS_KEY"),
+            secret_key=os.getenv("AWS_SECRET_ACCESS_KEY", "YOUR_SECRET_KEY"),
+            filename=filename
+        )
+
+        # 3. user_image_url 업데이트
+        req.user_image_url = s3_url
+        db.commit()
+        db.refresh(req)
+
+        return {
+            "success": True,
+            "message": "요청이 성공적으로 저장되었습니다.",
+            "data": {
+                "user_id": current_user["user_id"],
+                "request_id": req.request_id,
+                "image_url": s3_url
+            }
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"요청 처리 중 오류가 발생했습니다: {str(e)}"
+        )
 
 # 추천 스타일 리스트 조회 (mock)
 @router.get("/recommend/styles", response_model=List[RecommendedStyle])
