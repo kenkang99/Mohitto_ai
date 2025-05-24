@@ -4,6 +4,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Alert } fro
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { authService } from '../services/authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SigninScreen() {
   const router = useRouter();
@@ -34,10 +35,18 @@ export default function SigninScreen() {
 
     try {
       setIsLoading(true);
-      await authService.login(email, password);
-      Alert.alert('성공', '로그인되었습니다.');
-      router.push('/welcome');
+      const response = await authService.login(email, password);
+      
+      // 토큰 저장
+      if (response.token) {
+        await AsyncStorage.setItem('userToken', response.token);
+        Alert.alert('성공', '로그인되었습니다.');
+        router.replace('/welcome');
+      } else {
+        throw new Error('토큰이 없습니다.');
+      }
     } catch (error) {
+      console.error('로그인 에러:', error);
       Alert.alert('오류', error.detail || '로그인에 실패했습니다.');
     } finally {
       setIsLoading(false);

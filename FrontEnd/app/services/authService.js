@@ -26,9 +26,18 @@ export const authService = {
         email,
         password,
       });
-      const { access_token } = response.data;
-      await AsyncStorage.setItem('access_token', access_token);
-      return response.data;
+      
+      if (!response.data.access_token) {
+        throw new Error('토큰이 없습니다.');
+      }
+
+      // 토큰 저장
+      await AsyncStorage.setItem('userToken', response.data.access_token);
+      
+      return {
+        token: response.data.access_token,
+        user: response.data.user
+      };
     } catch (error) {
       console.error('로그인 서비스 에러:', error);
       throw error;
@@ -38,7 +47,7 @@ export const authService = {
   // 로그아웃
   async logout() {
     try {
-      await AsyncStorage.removeItem('access_token');
+      await AsyncStorage.removeItem('userToken');
     } catch (error) {
       console.error('로그아웃 서비스 에러:', error);
       throw error;
@@ -48,7 +57,16 @@ export const authService = {
   // 프로필 조회
   async getProfile() {
     try {
-      const response = await api.get('/user/profile');
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        throw new Error('인증되지 않은 사용자입니다.');
+      }
+
+      const response = await api.get('/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('프로필 조회 서비스 에러:', error);
@@ -59,7 +77,7 @@ export const authService = {
   // 토큰 존재 여부 확인
   async isAuthenticated() {
     try {
-      const token = await AsyncStorage.getItem('access_token');
+      const token = await AsyncStorage.getItem('userToken');
       return !!token;
     } catch (error) {
       console.error('인증 확인 서비스 에러:', error);
