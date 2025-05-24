@@ -2,7 +2,6 @@
 import cv2
 from .facemesh import extract_facial_ratios
 from .extract_faceshape import predict_faceshape
-from .stone_classifier import extract_face_colors
 
 def extract_feature(image):
     #image = cv2.imread(image)
@@ -13,6 +12,5 @@ def extract_feature(image):
     # 얼굴형, 피부색, 비율 추출
     faceshape = predict_faceshape(image)
     top_ratio, mid_ratio, down_ratio = extract_facial_ratios(image)
-    skin_tone = extract_face_colors(image)
 
-    return faceshape, top_ratio, mid_ratio, down_ratio, skin_tone
+    return faceshape, top_ratio, mid_ratio, down_ratio
