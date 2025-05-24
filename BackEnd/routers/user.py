@@ -1,7 +1,7 @@
 # routers/user.py
 # 사용자 관련 API: 스타일 추천, 미용실 추천, 얼굴 분석 요청
 
-from fastapi import APIRouter, Depends, Form, File, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, Form, File, UploadFile, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import List
 from core.security import get_current_user  # 공통 인증 모듈 사용
@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from models.request import Request
 from core.database import get_db
 from datetime import datetime
+import requests
 
 router = APIRouter()
 
@@ -33,6 +34,18 @@ class RecommendedStyle(BaseModel):
     hairstyle_name: str
     hairstyle_image_url: str
     description: str
+
+# face_extract 호출 함수 정의
+def trigger_face_extract(user_id, request_id):
+    try:
+        res = requests.post(
+            "http://extract_face:8001/run-extract/",
+            json={"user_id": user_id, "request_id": request_id},
+            timeout=5
+        )
+        print(f"[INFO] face_extract 응답: {res.status_code}, {res.text}")
+    except Exception as e:
+        print(f"[ERROR] face_extract 호출 실패: {e}")
 
 # 사용자별 추천 스타일 조회
 @router.get("/user/hairstyles", response_model=List[Style])
@@ -93,6 +106,7 @@ def upload_image_to_s3(file, bucket, region, access_key, secret_key, filename=No
 # 얼굴 분석 요청 (설문 + 이미지)
 @router.post("/analyze-face")
 async def analyze_face(
+    background_tasks: BackgroundTasks,
     hair_length: str = Form(...),
     hair_type: str = Form(...),
     sex: str = Form(...),
@@ -144,9 +158,12 @@ async def analyze_face(
         db.commit()
         db.refresh(req)
 
+        # 백그라운드 작업 등록
+        background_tasks.add_task(trigger_face_extract, current_user["user_id"], req.request_id)
+        
         return {
             "success": True,
-            "message": "요청이 성공적으로 저장되었습니다.",
+            "message": "요청이 성공적으로 저장되었고 분석이 시작되었습니다.",
             "data": {
                 "user_id": current_user["user_id"],
                 "request_id": req.request_id,
