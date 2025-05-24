@@ -6,10 +6,10 @@ from .extract_faceshape import predict_faceshape
 from .stone_classifier import extract_face_colors
 from .extract_face_feature import extract_feature
 
-def evaluate_feature(image):
+def evaluate_feature(image_path):
 
     # 이미지 정보 추출
-    faceshape, top_ratio, mid_ratio, down_ratio, skin_tone = extract_feature(image)
+    faceshape, top_ratio, mid_ratio, down_ratio = extract_feature(image_path)
 
     # 얼굴형 생성
     faceshape_eval = ""
@@ -75,4 +75,55 @@ def evaluate_feature(image):
     else:
         low_eval = "정보 없음"
 
-    return faceshape_eval, skin_tone, forehead_eval, central_eval, low_eval
+    # 얼굴 비율 중 어떤 부위가 유독 긴지 판단
+    region_status = "비율 정보 부족"
+    if top_ratio and mid_ratio and down_ratio:
+        max_val = max(top_ratio, mid_ratio, down_ratio)
+        if max_val == top_ratio:
+            region_status = "상안부가 유독 김"
+        elif max_val == mid_ratio:
+            region_status = "중안부가 유독 김"
+        elif max_val == down_ratio:
+            region_status = "하안부가 유독 김"
+
+        # 세 비율이 유사한 경우
+        if abs(top_ratio - mid_ratio) < 0.05 and abs(mid_ratio - down_ratio) < 0.05:
+            region_status = "3개 비율이 유사함"
+
+    # 얼굴형별 종합 평가 문장 매핑
+    evaluation_table = {
+        # 하트형
+        ("하트형", "상안부가 유독 김"): "이마가 강조되어 얼굴 상단의 이미지가 강합니다.",
+        ("하트형", "중안부가 유독 김"): "중앙이 길어 얼굴이 전체적으로 늘씬하고 또렷한 느낌을 줍니다.",
+        ("하트형", "하안부가 유독 김"): "하관이 강조되어 상대적으로 날카롭고 선이 도드라지는 인상입니다.",
+        ("하트형", "3개 비율이 유사함"): "전체적으로 균형 잡힌 부드러운 인상을 주는 얼굴입니다.",
+
+        # 계란형
+        ("계란형", "상안부가 유독 김"): "이마가 넓고 눈썹 위로 시선이 모이며, 지적인 분위기가 느껴집니다.",
+        ("계란형", "중안부가 유독 김"): "중안부가 강조되어 차분하고 또렷한 인상을 주며, 안정감 있는 이미지입니다.",
+        ("계란형", "하안부가 유독 김"): "아래쪽이 강조되어 신뢰감 있고 단단한 인상을 줍니다.",
+        ("계란형", "3개 비율이 유사함"): "이상적인 균형을 가진 얼굴로, 누구에게나 편안하고 조화로운 인상을 줍니다.",
+
+        # 둥근형
+        ("둥근형", "상안부가 유독 김"): "이마와 볼이 강조되어 부드럽고 친근한 느낌입니다.",
+        ("둥근형", "중안부가 유독 김"): "눈과 코 중심부가 길어져 귀여움과 함께 깔끔한 이미지가 함께 느껴집니다.",
+        ("둥근형", "하안부가 유독 김"): "하관이 부각되어 생기 있고 활달한 인상을 줍니다.",
+        ("둥근형", "3개 비율이 유사함"): "전체적으로 부드럽고 온화한 인상을 주며, 친근한 이미지가 강조됩니다.",
+
+        # 네모형
+        ("네모형", "상안부가 유독 김"): "이마와 얼굴 외곽이 강하게 표현되어 단호하고 카리스마 있는 인상을 줍니다.",
+        ("네모형", "중안부가 유독 김"): "중앙이 강조되어 높은 시선 집중도를 보입니다.",
+        ("네모형", "하안부가 유독 김"): "강한 하관이 부각되어 주도적이고 결단력 있는 인상을 줍니다.",
+        ("네모형", "3개 비율이 유사함"): "균형 잡힌 각진 얼굴로, 세련되고 자신감 있는 인상을 줍니다.",
+
+        # 긴형 (타원형)
+        ("긴형", "상안부가 유독 김"): "이마가 강조되어 고요하고 차분한 느낌의 인상을 줍니다.",
+        ("긴형", "중안부가 유독 김"): "중앙이 길어 이성적이고 절제된 분위기가 느껴지는 얼굴입니다.",
+        ("긴형", "하안부가 유독 김"): "하관이 길어 얼굴 하단이 강조되며, 진중하고 깊은 인상을 줍니다.",
+        ("긴형", "3개 비율이 유사함"): "전반적으로 조화로운 비율로, 성숙하고 안정적인 인상을 줍니다.",
+    }
+
+    # 종합 평가 문장 생성
+    final_evaluation = evaluation_table.get((faceshape_eval, region_status), "얼굴형 및 비율 정보 기반 평가를 제공하기 어렵습니다.")
+
+    return faceshape_eval, forehead_eval, central_eval, low_eval, final_evaluation
