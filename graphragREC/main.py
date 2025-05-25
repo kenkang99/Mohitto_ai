@@ -20,7 +20,7 @@ class UserRequest(BaseModel):
     hair_type: str
     sex: str
     cheekbone: str
-    mood: List[str]
+    mood: str
     forehead_shape: str
     difficulty: str
     has_bangs: str

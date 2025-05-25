@@ -37,7 +37,7 @@ def run_recommendation(
     print(f"[INFO] payload 준비 완료 → GraphRAG 전송 시작\n{payload}")
 
     try:
-        response = requests.post("http://nano-graphrag:8002/recommend", json=payload)
+        response = requests.post("http://graphrag:8002/recommend", json=payload)
         response.raise_for_status()
 
         print("[INFO] GraphRAG 응답 수신 성공")

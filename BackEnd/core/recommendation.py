@@ -19,8 +19,12 @@ def get_analysis_payload(db: Session, user_id: int, request_id: int):
 
     print("[INFO] DB에서 request/result 정보 모두 정상 조회됨")
 
+    mood = request_info.mood
+    if isinstance(mood, list):
+        mood = ", ".join(mood)
+    
     return {
-        "user_id": user_id,
+        "user_id": str(user_id),
         "request_id": request_id,
 
         # 사용자 입력 정보
@@ -28,13 +32,15 @@ def get_analysis_payload(db: Session, user_id: int, request_id: int):
         "hair_type": request_info.hair_type,
         "sex": request_info.sex,
         "cheekbone": request_info.cheekbone,
-        "mood": request_info.mood,
+        "mood": mood,
         "forehead_shape": request_info.forehead_shape,
         "difficulty": request_info.difficulty,
         "has_bangs": request_info.has_bangs,
+        "face_shape": result_info.face_type,
 
         # 얼굴 분석 정보
-        "face_shape": result_info.face_type,
-        "skin_tone": result_info.skin_tone,
-        "forehead": result_info.forehead,
+        # "face_shape": result_info.face_type,
+        # "skin_tone": result_info.skin_tone,
+        # "forehead": result_info.forehead,
+        "summary": result_info.summary
     }

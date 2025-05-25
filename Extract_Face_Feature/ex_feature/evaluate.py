@@ -1,15 +1,27 @@
 # evaluate.py
 import cv2
 import json
+import requests
+import numpy as np
 from .facemesh import extract_facial_ratios
 from .extract_faceshape import predict_faceshape
-from .stone_classifier import extract_face_colors
+# from .stone_classifier import extract_face_colors
 from .extract_face_feature import extract_feature
 
-def evaluate_feature(image_path):
+def read_image_from_url(url):
+    response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    if response.status_code != 200:
+        raise FileNotFoundError(f"[다운로드 실패] 이미지를 불러올 수 없습니다: {url}")
+    img_array = np.asarray(bytearray(response.content), dtype=np.uint8)
+    image = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+    if image is None:
+        raise ValueError(f"[디코딩 실패] OpenCV가 이미지를 디코딩하지 못했습니다: {url}")
+    return image
 
+def evaluate_feature(image_path):
     # 이미지 정보 추출
-    faceshape, top_ratio, mid_ratio, down_ratio = extract_feature(image_path)
+    image = read_image_from_url(image_path)
+    faceshape, top_ratio, mid_ratio, down_ratio = extract_feature(image)
 
     # 얼굴형 생성
     faceshape_eval = ""
