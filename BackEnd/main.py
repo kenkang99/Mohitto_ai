@@ -1,4 +1,4 @@
-# main.py
+# Backend/main.py
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from routers import auth, user, styles, salons
