@@ -33,6 +33,7 @@ export const authService = {
 
       // 토큰 저장
       await AsyncStorage.setItem('userToken', response.data.access_token);
+      await AsyncStorage.setItem('access_token', response.data.access_token);
       
       return {
         token: response.data.access_token,

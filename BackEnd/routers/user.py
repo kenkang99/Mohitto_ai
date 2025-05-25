@@ -14,6 +14,8 @@ from models.request import Request
 from core.database import get_db
 from datetime import datetime
 import requests
+from models.result import Result
+from sqlalchemy import desc
 
 router = APIRouter()
 
@@ -34,6 +36,14 @@ class RecommendedStyle(BaseModel):
     hairstyle_name: str
     hairstyle_image_url: str
     description: str
+
+class UserResultResponse(BaseModel):
+    user_image_url: str
+    sex: str
+    face_type: str
+    skin_tone: str
+    rec_color: str
+    summary: str
 
 # face_extract 호출 함수 정의
 def trigger_face_extract(user_id, request_id):
@@ -211,3 +221,29 @@ def recommend_styles(current_user: dict = Depends(get_current_user)):
             "description": "볼륨감 있게 연출되어 얼굴형 보완에 효과적입니다."
         }
     ]
+
+@router.get("/user/result/{request_id}", response_model=UserResultResponse)
+def get_user_result(request_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    # 1. request_table에서 이미지, 성별
+    req = db.query(Request).filter(Request.request_id == request_id, Request.user_id == current_user["user_id"]).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="해당 요청을 찾을 수 없습니다.")
+    # 2. result_table에서 분석 결과
+    result = db.query(Result).filter(Result.request_id == request_id).first()
+    if not result:
+        raise HTTPException(status_code=404, detail="아직 분석 결과가 저장되지 않았습니다.")
+    return UserResultResponse(
+        user_image_url=req.user_image_url,
+        sex=req.sex,
+        face_type=result.face_type,
+        skin_tone=result.skin_tone,
+        rec_color=result.rec_color,
+        summary=result.summary
+    )
+
+@router.get("/user/latest-request-id")
+def get_latest_request_id(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    req = db.query(Request).filter(Request.user_id == current_user["user_id"]).order_by(desc(Request.created_at)).first()
+    if not req:
+        return {"request_id": None}
+    return {"request_id": req.request_id}

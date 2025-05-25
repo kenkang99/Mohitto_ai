@@ -1,71 +1,109 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import api from '../config/api';
+
+// 실제 서비스에서는 requestId를 useLocalSearchParams 등으로 받아도 됩니다.
+// import { useLocalSearchParams } from 'expo-router';
+// const { requestId } = useLocalSearchParams();
 
 export default function DiscoverResult() {
   const router = useRouter();
-  const [selectedTab , setselectedTab] = useState('DISCOVER');
+  const [selectedTab, setselectedTab] = useState('DISCOVER');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    // 1. 최신 request_id를 먼저 받아온다
+    api.get('/user/latest-request-id')
+      .then(res => {
+        const latestId = res.data.request_id;
+        if (!latestId) {
+          setError('최근 요청이 없습니다.');
+          setLoading(false);
+          return;
+        }
+        // 2. 해당 request_id로 결과를 조회한다
+        api.get(`/user/result/${latestId}`)
+          .then(res2 => {
+            setResult(res2.data);
+            setLoading(false);
+          })
+          .catch(err2 => {
+            setError(err2.message || '결과를 불러오지 못했습니다.');
+            setLoading(false);
+          });
+      })
+      .catch(err => {
+        setError(err.message || '최신 요청을 불러오지 못했습니다.');
+        setLoading(false);
+      });
+  }, []);
 
   return (
-    <View style={{ flex: 1 ,backgroundColor: 'white'}}>
-        <View style={styles.header}>
-        <TouchableOpacity onPress={()=>router.push('/welcome')}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.push('/welcome')}>
           <Image source={require('../../assets/logo2.png')} style={styles.logoimage} />
         </TouchableOpacity>
-
-       <TouchableOpacity onPress={()=> router.push('/mypage-hairstyle')}>
-          <Image source={require('../../assets/mypage.png')} style = {styles.mypageimage}/>
+        <TouchableOpacity onPress={() => router.push('/mypage-hairstyle')}>
+          <Image source={require('../../assets/mypage.png')} style={styles.mypageimage} />
         </TouchableOpacity>
-
-        </View>
-
-      <View style={{flex: 1}}>
+      </View>
+      <View style={{ flex: 1 }}>
         <View style={styles.buttonContainer}>
-          
-          {['DISCOVER','SIMULATION','HAIRSHOP'].map((tab)=>(
-            <TouchableOpacity 
-            key={tab} 
-            onPress={() =>  {
-              setselectedTab(tab);
-              if (tab === 'DISCOVER') {
-                router.push('/home-discover');
-              } else if (tab === 'SIMULATION') {
-                router.push('/home-simulation');
-              } else {
-                router.push('/home-hairshop');
-              }
-            }}
+          {['DISCOVER', 'SIMULATION', 'HAIRSHOP'].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => {
+                setselectedTab(tab);
+                if (tab === 'DISCOVER') {
+                  router.push('/home-discover');
+                } else if (tab === 'SIMULATION') {
+                  router.push('/home-simulation');
+                } else {
+                  router.push('/home-hairshop');
+                }
+              }}
               style={styles.tabItem}>
-            <Text style={[styles.tabText,selectedTab === tab && styles.activeTabText]}>
-              {tab}
-            </Text>
-            {selectedTab === tab && <View style={styles.underline}/>}
-            </TouchableOpacity>))}
-          
+              <Text style={[styles.tabText, selectedTab === tab && styles.activeTabText]}>
+                {tab}
+              </Text>
+              {selectedTab === tab && <View style={styles.underline} />}
+            </TouchableOpacity>
+          ))}
         </View>
-        <View style ={styles.horizontalLine}/>
-        <Text style = {styles.text}>얼굴형 분석을 완료했습니다.</Text>
-        
-        <View style={styles.imageContainer}>
-          <Image source={require('../../assets/example_result.png')}style ={styles.exampleImage}/>
-          <View style={styles.outlineSqure}>
-          </View>
-        </View>
-        
-
-        <Text style = {styles.resultText}>
-          얼굴형 : 달걀형 {'\n'}
-          피부톤 : ##43566{'\n'}
-          성별 : 남성
-        </Text>
-        <TouchableOpacity onPress={()=>router.push('./discover-recomendation')} style={styles.startButton}>
-                <View style={styles.startButtonContent}>
-                  <Text style={styles.startButtonText}>추천 받기</Text>
-                </View>
-              </TouchableOpacity>
+        <View style={styles.horizontalLine} />
+        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+          <Text style={styles.text}>얼굴형 분석을 완료했습니다.</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#FFBCC2" style={{ marginTop: 40 }} />
+          ) : error ? (
+            <Text style={{ color: 'red', textAlign: 'center', marginTop: 40 }}>{error}</Text>
+          ) : result ? (
+            <>
+              <View style={styles.imageContainer}>
+                <Image source={{ uri: result.user_image_url }} style={styles.exampleImage} />
+                <View style={styles.outlineSqure}></View>
+              </View>
+              <View style={styles.resultBox}>
+                <Text style={styles.resultText}><Text style={styles.resultLabel}>성별:</Text> {result.sex}</Text>
+                <Text style={styles.resultText}><Text style={styles.resultLabel}>얼굴형:</Text> {result.face_type}</Text>
+                <Text style={styles.resultText}><Text style={styles.resultLabel}>피부톤:</Text> {result.skin_tone}</Text>
+                <Text style={styles.resultText}><Text style={styles.resultLabel}>추천 염색:</Text> {result.rec_color}</Text>
+                <Text style={styles.resultText}><Text style={styles.resultLabel}>요약:</Text> {result.summary}</Text>
+              </View>
+            </>
+          ) : null}
+          <TouchableOpacity onPress={() => router.push('./discover-recomendation')} style={styles.startButton}>
+            <View style={styles.startButtonContent}>
+              <Text style={styles.startButtonText}>추천 받기</Text>
+            </View>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
     </View>
-    
   );
 }
 
@@ -181,5 +219,17 @@ const styles = StyleSheet.create({
     height : 258,
     borderWidth:1,
     position : 'absolute'
-  }
+  },
+  resultBox: {
+    backgroundColor: '#F6F1FB',
+    borderRadius: 10,
+    marginHorizontal: 20,
+    marginTop: 10,
+    padding: 20,
+    elevation: 2,
+  },
+  resultLabel: {
+    fontWeight: 'bold',
+    color: '#FFBCC2',
+  },
 });
