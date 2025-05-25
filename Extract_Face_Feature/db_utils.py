@@ -44,9 +44,10 @@ def save_result_to_db(result: dict, request_id: int):
                 INSERT INTO result_table (
                     face_type, skin_tone, forehead, sex,
                     top_rate, middle_rate, bottom_rate,
-                    created_at, request_id
+                    created_at, request_id, rec_color,
+                    summary
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(sql, (
                 result.get("얼굴형"),
@@ -57,7 +58,9 @@ def save_result_to_db(result: dict, request_id: int):
                 result.get("중안부 평가"),
                 result.get("하안부 평가"),
                 datetime.now(),
-                request_id
+                request_id,
+                ", ".join(result.get("추천 염색", [])),
+                result.get("얼굴 분석 총평")
             ))
         conn.commit()
     finally:

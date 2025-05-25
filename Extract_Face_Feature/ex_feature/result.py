@@ -33,6 +33,7 @@ def generate_summary(image_path, id, curl, length, dyeing, forehead, clown, mood
 
     # 콘솔에도 출력
     print("\n=== 얼굴 분석 결과 ===")
+    print("추천 염색 리스트 확인:", recs)
     for k, v in result.items():
         print(f"{k} : {v}")
     return result

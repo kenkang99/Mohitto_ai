@@ -13,6 +13,11 @@ class Result(Base):
     skin_tone = Column(String(20), nullable=False)
     forehead = Column(String(20), nullable=False)
     sex = Column(String(20), nullable=False)
+    top_rate = Column(String(50))           
+    middle_rate = Column(String(50))       
+    bottom_rate = Column(String(50))       
+    rec_color = Column(String(255))         
+    summary = Column(String(255))           
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # 외래키: 요청 ID

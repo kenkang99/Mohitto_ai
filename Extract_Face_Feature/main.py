@@ -29,14 +29,18 @@ def run_extract(data: dict = Body(...)):
     user_id = data["user_id"]
     request_id = data["request_id"]
 
+    print(f"[DEBUG] 요청 수신됨 - user_id: {user_id}, request_id: {request_id}")
+    
     info = get_latest_request(user_id, request_id)
     if not info:
         return {"error": "요청 정보를 찾을 수 없습니다."}
 
+    print(f"[DEBUG] DB에서 가져온 요청 정보: {info}")
+    
     image = read_image_from_url(info["user_image_url"])
 
     result_dict = generate_summary(
-        image,
+        info["user_image_url"],
         str(request_id),
         info["hair_type"],
         info["hair_length"],
@@ -71,7 +75,10 @@ def run_extract(data: dict = Body(...)):
     with open(file_name, "w", encoding="utf-8") as f:
         json.dump(final_result, f, ensure_ascii=False, indent=2)
 
-    save_result_to_db(result_dict, int(request_id))
+    try:
+        save_result_to_db(result_dict, int(request_id))
+    except Exception as e:
+        return {"error": f"DB 저장 중 오류 발생: {str(e)}"}
     notify_main_api(user_id, int(request_id))
 
     return {"message": "분석 완료 및 Main API에 알림 전송 완료"}

@@ -10,6 +10,7 @@ def notify_main_api(user_id: int, request_id: int):
             "request_id": request_id
         })
         print("[INFO] Main API 호출 완료:", response.status_code)
+        print("[INFO] Main API 응답 내용:", response.text)
     except Exception as e:
         print("[ERROR] Main API 호출 실패:", e)
         
