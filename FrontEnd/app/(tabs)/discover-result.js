@@ -1,45 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from '../config/api';
-
-// 실제 서비스에서는 requestId를 useLocalSearchParams 등으로 받아도 됩니다.
-// import { useLocalSearchParams } from 'expo-router';
-// const { requestId } = useLocalSearchParams();
 
 export default function DiscoverResult() {
   const router = useRouter();
+  const { requestId } = useLocalSearchParams();
   const [selectedTab, setselectedTab] = useState('DISCOVER');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
 
   useEffect(() => {
-    // 1. 최신 request_id를 먼저 받아온다
-    api.get('/user/latest-request-id')
+    if (!requestId) return;
+    setLoading(true);
+    api.get(`/user/result/${requestId}`)
       .then(res => {
-        const latestId = res.data.request_id;
-        if (!latestId) {
-          setError('최근 요청이 없습니다.');
-          setLoading(false);
-          return;
-        }
-        // 2. 해당 request_id로 결과를 조회한다
-        api.get(`/user/result/${latestId}`)
-          .then(res2 => {
-            setResult(res2.data);
-            setLoading(false);
-          })
-          .catch(err2 => {
-            setError(err2.message || '결과를 불러오지 못했습니다.');
-            setLoading(false);
-          });
+        setResult(res.data);
+        setLoading(false);
       })
       .catch(err => {
-        setError(err.message || '최신 요청을 불러오지 못했습니다.');
+        setError(err.message || '결과를 불러오지 못했습니다.');
         setLoading(false);
       });
-  }, []);
+  }, [requestId]);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
