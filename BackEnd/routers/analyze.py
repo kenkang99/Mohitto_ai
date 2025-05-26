@@ -37,8 +37,8 @@ def run_recommendation(
     print(f"[INFO] payload 준비 완료 → GraphRAG 전송 시작\n{payload}")
 
     try:
-        response = requests.post("http://graphrag:8002/recommend", json=payload) # [개발용] Docker 내부 통신용 주소 (도커 네트워크: graphrag)
-        # response = requests.post("http://13.124.74.93:8002/recommend", json=payload)  # [운영용] EC2 고정 IP로 GraphRAG 서버 호출
+        # response = requests.post("http://graphrag:8002/recommend", json=payload) # [개발용] Docker 내부 통신용 주소 (도커 네트워크: graphrag)
+        response = requests.post("http://13.124.74.93:8002/recommend", json=payload)  # [운영용] EC2 고정 IP로 GraphRAG 서버 호출
         response.raise_for_status()
 
         print("[INFO] GraphRAG 응답 수신 성공")
@@ -96,3 +96,39 @@ def save_recommendation(payload: RecommendationPayload, db: Session = Depends(ge
     db.commit()
     print(f"[INFO] user_id={user_id}, request_id={request_id} 추천 결과 DB 저장 완료")
     return {"message": "추천 결과 DB 저장 완료"}
+
+# 3. 기존: Main → StableHair 요청
+@router.post("/run-stablehair/")
+def run_recommendation(
+    data: dict = Body(...),
+    db: Session = Depends(get_db)
+):
+    user_id = data.get("user_id")
+    request_id = data.get("request_id")
+
+    print(f"[DEBUG] 요청 수신됨 - user_id: {user_id}, request_id: {request_id}")
+
+    if not user_id or not request_id:
+        print("[ERROR] user_id 또는 request_id가 없음")
+        raise HTTPException(status_code=400, detail="user_id 또는 request_id가 누락되었습니다.")
+
+    # payload 구성
+    payload = get_analysis_payload(db, user_id, request_id)
+    if not payload:
+        print("[ERROR] get_analysis_payload 실패 - 데이터 없음")
+        raise HTTPException(status_code=404, detail="요청 또는 분석 결과가 없습니다.")
+
+    print(f"[INFO] payload 준비 완료 → StableHair 전송 시작\n{payload}")
+
+    try:
+        response = requests.post("http://13.124.74.93:8003/recommend", json=payload)  # [운영용] EC2 고정 IP로 StableHair 서버 호출
+        response.raise_for_status()
+
+        print("[INFO] StableHair 응답 수신 성공")
+        print(f"[DEBUG] StableHair 응답 데이터: {response.json()}")
+
+        return {"message": "추천 성공", "result": response.json()}
+    
+    except requests.exceptions.RequestException as e:
+        print(f"[ERROR] StableHair 요청 중 오류 발생: {e}")
+        raise HTTPException(status_code=500, detail=f"StableHair 호출 실패: {e}")

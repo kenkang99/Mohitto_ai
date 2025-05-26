@@ -262,8 +262,26 @@ class HairRecommendationResponse(BaseModel):
     description: str
 
 @router.get("/user/hair-recommendations/{request_id}", response_model=List[HairRecommendationResponse])
-def get_hair_recommendations(request_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
-    hairs = db.query(HairRecommendation).filter(HairRecommendation.request_id == request_id).all()
+def get_hair_recommendations(
+    request_id: int,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # 디버깅 로그: 현재 사용자 ID와 요청 ID 확인
+    print(f"[DEBUG] 요청 받은 request_id: {request_id}, current_user_id: {current_user['user_id']}")
+
+    # 추천 결과 DB 조회 (사용자 ID와 요청 ID로 필터링)
+    hairs = db.query(HairRecommendation).filter(
+        HairRecommendation.request_id == request_id,
+        HairRecommendation.user_id == current_user["user_id"]
+    ).all()
+
+    # 디버깅 로그: 조회된 추천 결과 수 확인
+    print(f"[DEBUG] 조회된 추천 개수: {len(hairs)}")
+    for h in hairs:
+        print(f"[DEBUG] 추천: hair_name={h.hair_name}, hair_rec_id={h.hair_rec_id}")
+
+    # 추천 결과 응답
     return [
         {
             "hair_rec_id": h.hair_rec_id,
