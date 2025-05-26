@@ -162,11 +162,14 @@ export default function DiscoverCamera({ route }) {
       if (response.data.success) {
         // 분석 완료 후 설문 데이터 삭제
         await AsyncStorage.removeItem('surveyData');
-        const requestId = response.data.data.request_id; // 응답에서 request_id 추출
+        
         Alert.alert('성공', '분석이 완료되었습니다.');
         router.push({
           pathname: '/discover-result',
-          params: { requestId }
+          params: { 
+            resultId: response.data.request_id,
+            ...response.data
+          }
         });
       } else {
         Alert.alert('오류', '분석 중 문제가 발생했습니다.');
