@@ -224,10 +224,14 @@ def recommend_styles(current_user: dict = Depends(get_current_user)):
 
 @router.get("/user/result/{request_id}", response_model=UserResultResponse)
 def get_user_result(request_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    print(f"[DEBUG] 요청 진입 - user_id: {current_user['user_id']}, request_id: {request_id}")
     # 1. request_table에서 이미지, 성별
     req = db.query(Request).filter(Request.request_id == request_id, Request.user_id == current_user["user_id"]).first()
     if not req:
+        print(f"[ERROR] Request 테이블에 해당 user_id + request_id 조합 없음")
         raise HTTPException(status_code=404, detail="해당 요청을 찾을 수 없습니다.")
+    
+    print(f"[DEBUG] Request OK - user_image_url: {req.user_image_url}")
     # 2. result_table에서 분석 결과
     result = db.query(Result).filter(Result.request_id == request_id).first()
     if not result:
