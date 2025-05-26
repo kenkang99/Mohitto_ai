@@ -37,8 +37,8 @@ def run_recommendation(
     print(f"[INFO] payload 준비 완료 → GraphRAG 전송 시작\n{payload}")
 
     try:
-        # response = requests.post("http://graphrag:8002/recommend", json=payload) # [개발용] Docker 내부 통신용 주소 (도커 네트워크: graphrag)
-        response = requests.post("http://13.124.74.93:8002/recommend", json=payload)  # [운영용] EC2 고정 IP로 GraphRAG 서버 호출
+        response = requests.post("http://graphrag:8002/recommend", json=payload) # [개발용] Docker 내부 통신용 주소 (도커 네트워크: graphrag)
+        # response = requests.post("http://13.124.74.93:8002/recommend", json=payload)  # [운영용] EC2 고정 IP로 GraphRAG 서버 호출
         response.raise_for_status()
 
         print("[INFO] GraphRAG 응답 수신 성공")
@@ -121,7 +121,7 @@ def run_recommendation(
     print(f"[INFO] payload 준비 완료 → StableHair 전송 시작\n{payload}")
 
     try:
-        response = requests.post("http://13.124.74.93:8003/recommend", json=payload)  # [운영용] EC2 고정 IP로 StableHair 서버 호출
+        response = requests.post("http://ec2-13-209-22-52.ap-northeast-2.compute.amazonaws.com:8003/run-stablehair", json=payload)  # [운영용] EC2 고정 IP로 StableHair 서버 호출
         response.raise_for_status()
 
         print("[INFO] StableHair 응답 수신 성공")

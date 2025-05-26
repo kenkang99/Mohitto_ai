@@ -40,6 +40,8 @@ class RecommendedStyle(BaseModel):
     description: str
 
 class UserResultResponse(BaseModel):
+    user_id: int
+    request_id: int
     user_image_url: str
     sex: str
     face_type: str
@@ -56,7 +58,7 @@ def trigger_face_extract(user_id, request_id):
             json={"user_id": user_id, "request_id": request_id},
             timeout=5
         )
-        # [운영용] EC2 고정 IP 사용 시 아래로 교체
+        # # [운영용] EC2 고정 IP 사용 시 아래로 교체
         # res = requests.post(
         #     "http://13.124.74.93:8001/run-extract/",
         #     json={"user_id": user_id, "request_id": request_id},
@@ -239,6 +241,8 @@ def get_user_result(request_id: int, current_user: dict = Depends(get_current_us
     if not result:
         raise HTTPException(status_code=404, detail="아직 분석 결과가 저장되지 않았습니다.")
     return UserResultResponse(
+        user_id=req.user_id,
+        request_id=req.request_id,
         user_image_url=req.user_image_url,
         sex=req.sex,
         face_type=result.face_type,
@@ -267,6 +271,7 @@ def get_hair_recommendations(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    user_id = int(current_user["user_id"])
     # 디버깅 로그: 현재 사용자 ID와 요청 ID 확인
     print(f"[DEBUG] 요청 받은 request_id: {request_id}, current_user_id: {current_user['user_id']}")
 
