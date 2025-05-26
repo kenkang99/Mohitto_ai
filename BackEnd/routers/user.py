@@ -1,9 +1,9 @@
 # routers/user.py
 # 사용자 관련 API: 스타일 추천, 미용실 추천, 얼굴 분석 요청
 
-from fastapi import APIRouter, Depends, Form, File, UploadFile, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, Form, File, UploadFile, HTTPException, BackgroundTasks, Query
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from core.security import get_current_user  # 공통 인증 모듈 사용
 import os
 import boto3
@@ -16,6 +16,8 @@ from datetime import datetime
 import requests
 from models.result import Result
 from sqlalchemy import desc
+from models.hair_recommendation import HairRecommendation
+from models.hairshop_recommendation import HairshopRecommendation
 
 router = APIRouter()
 
@@ -224,10 +226,14 @@ def recommend_styles(current_user: dict = Depends(get_current_user)):
 
 @router.get("/user/result/{request_id}", response_model=UserResultResponse)
 def get_user_result(request_id: int, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    print(f"[DEBUG] 요청 진입 - user_id: {current_user['user_id']}, request_id: {request_id}")
     # 1. request_table에서 이미지, 성별
     req = db.query(Request).filter(Request.request_id == request_id, Request.user_id == current_user["user_id"]).first()
     if not req:
+        print(f"[ERROR] Request 테이블에 해당 user_id + request_id 조합 없음")
         raise HTTPException(status_code=404, detail="해당 요청을 찾을 수 없습니다.")
+    
+    print(f"[DEBUG] Request OK - user_image_url: {req.user_image_url}")
     # 2. result_table에서 분석 결과
     result = db.query(Result).filter(Result.request_id == request_id).first()
     if not result:
@@ -247,3 +253,67 @@ def get_latest_request_id(current_user: dict = Depends(get_current_user), db: Se
     if not req:
         return {"request_id": None}
     return {"request_id": req.request_id}
+
+# (1) request_id로 추천 헤어 리스트 반환
+class HairRecommendationResponse(BaseModel):
+    hair_rec_id: int
+    hair_name: str
+    simulation_image_url: str
+    description: str
+
+@router.get("/user/hair-recommendations/{request_id}", response_model=List[HairRecommendationResponse])
+def get_hair_recommendations(
+    request_id: int,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # 디버깅 로그: 현재 사용자 ID와 요청 ID 확인
+    print(f"[DEBUG] 요청 받은 request_id: {request_id}, current_user_id: {current_user['user_id']}")
+
+    # 추천 결과 DB 조회 (사용자 ID와 요청 ID로 필터링)
+    hairs = db.query(HairRecommendation).filter(
+        HairRecommendation.request_id == request_id,
+        HairRecommendation.user_id == current_user["user_id"]
+    ).all()
+
+    # 디버깅 로그: 조회된 추천 결과 수 확인
+    print(f"[DEBUG] 조회된 추천 개수: {len(hairs)}")
+    for h in hairs:
+        print(f"[DEBUG] 추천: hair_name={h.hair_name}, hair_rec_id={h.hair_rec_id}")
+
+    # 추천 결과 응답
+    return [
+        {
+            "hair_rec_id": h.hair_rec_id,
+            "hair_name": h.hair_name,
+            "simulation_image_url": h.simulation_image_url,
+            "description": h.description
+        }
+        for h in hairs
+    ]
+
+# (2) hair_rec_id로 추천 미용실 리스트 반환 (리뷰수 내림차순 정렬, 스크롤/페이지네이션 지원)
+class HairshopRecommendationResponse(BaseModel):
+    hairshop: str
+    review_count: int
+    mean_score: float
+
+@router.get("/user/hairshop-recommendations/{hair_rec_id}", response_model=List[HairshopRecommendationResponse])
+def get_hairshop_recommendations(
+    hair_rec_id: int,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1),
+    db: Session = Depends(get_db)
+):
+    shops = db.query(HairshopRecommendation) \
+        .filter(HairshopRecommendation.hair_rec_id == hair_rec_id) \
+        .order_by(HairshopRecommendation.review_count.desc()) \
+        .offset(skip).limit(limit).all()
+    return [
+        {
+            "hairshop": s.hairshop,
+            "review_count": s.review_count,
+            "mean_score": s.mean_score
+        }
+        for s in shops
+    ]
