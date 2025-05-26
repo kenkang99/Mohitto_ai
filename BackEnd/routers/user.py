@@ -40,6 +40,8 @@ class RecommendedStyle(BaseModel):
     description: str
 
 class UserResultResponse(BaseModel):
+    user_id: int
+    request_id: int
     user_image_url: str
     sex: str
     face_type: str
@@ -239,6 +241,8 @@ def get_user_result(request_id: int, current_user: dict = Depends(get_current_us
     if not result:
         raise HTTPException(status_code=404, detail="아직 분석 결과가 저장되지 않았습니다.")
     return UserResultResponse(
+        user_id=req.user_id,
+        request_id=req.request_id,
         user_image_url=req.user_image_url,
         sex=req.sex,
         face_type=result.face_type,

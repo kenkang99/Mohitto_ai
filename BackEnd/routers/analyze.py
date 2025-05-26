@@ -121,7 +121,7 @@ def run_recommendation(
     print(f"[INFO] payload 준비 완료 → StableHair 전송 시작\n{payload}")
 
     try:
-        response = requests.post("http://ec2-13-209-22-52.ap-northeast-2.compute.amazonaws.com:8003/recommend", json=payload)  # [운영용] EC2 고정 IP로 StableHair 서버 호출
+        response = requests.post("http://ec2-13-209-22-52.ap-northeast-2.compute.amazonaws.com:8003/run-stablehair", json=payload)  # [운영용] EC2 고정 IP로 StableHair 서버 호출
         response.raise_for_status()
 
         print("[INFO] StableHair 응답 수신 성공")
