@@ -17,6 +17,14 @@ class RecommendationItem(BaseModel):
     description: str
     hair_shops: List[HairshopInfo]
 
+class UserInfo(BaseModel):
+    user_id: int
+    request_id: int
+
 class RecommendationPayload(BaseModel):
-    user_info: dict  # {"user_id": ..., "request_id": ...}
+    user_info: UserInfo
     recommendations: List[RecommendationItem]
+
+# class RecommendationPayload(BaseModel):
+#     user_info: dict  # {"user_id": ..., "request_id": ...}
+#     recommendations: List[RecommendationItem]
