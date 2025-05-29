@@ -7,9 +7,9 @@ import numpy as np
 import json
 import uuid
 from datetime import datetime
-from db_utils import get_latest_request, save_result_to_db
+#from db_utils import get_latest_request, save_result_to_db
 from ex_feature.result import generate_summary
-from api_notifier import notify_main_api
+#from api_notifier import notify_main_api
 from fastapi import FastAPI, Body
 
 app = FastAPI()
@@ -26,62 +26,36 @@ def read_image_from_url(url):
 
 @app.post("/run-extract/")
 def run_extract(data: dict = Body(...)):
-    user_id = data["user_id"]
-    request_id = data["request_id"]
-
-    print(f"[DEBUG] 요청 수신됨 - user_id: {user_id}, request_id: {request_id}")
     
-    info = get_latest_request(user_id, request_id)
-    if not info:
-        return {"error": "요청 정보를 찾을 수 없습니다."}
-
-    print(f"[DEBUG] DB에서 가져온 요청 정보: {info}")
-    
-    image = read_image_from_url(info["user_image_url"])
+    # image = read_image_from_url(data["user_image_url"])
 
     result_dict = generate_summary(
-        info["user_image_url"],
-        str(request_id),
-        info["hair_type"],
-        info["hair_length"],
-        "X" if info["dyed"] == 0 else "O",
-        info["forehead_shape"],
-        info["cheekbone"],
-        info["mood"],
-        info["difficulty"]
+    data["user_image_url"],
+        data["hair_type"],
+        data["hair_length"],
+        data["dyed"] ,
+        data["forehead_shape"],
+        data["cheekbone"],
+        data["mood"],
+        data["difficulty"]
     )
+    
     result_dict["top_rate"] = result_dict.get("이마 평가")
     result_dict["middle_rate"] = result_dict.get("중안부 평가")
     result_dict["bottom_rate"] = result_dict.get("하안부 평가")
-    result_dict["request_id"] = request_id
-    result_dict["성별"] = info["sex"]
+    result_dict["sex"] = data["sex"]
 
     final_result = {
-        "request_id": request_id,
-        "input": {
-            "user_image_url": info["user_image_url"],
-            "hair_type": info["hair_type"],
-            "hair_length": info["hair_length"],
-            "dyed": info["dyed"],
-            "forehead_shape": info["forehead_shape"],
-            "cheekbone": info["cheekbone"],
-            "mood": info["mood"],
-            "difficulty": info["difficulty"]
-        },
         "result": result_dict
     }
 
-    file_name = f"recommend_{request_id}_{uuid.uuid4().hex}.json"
-    with open(file_name, "w", encoding="utf-8") as f:
-        json.dump(final_result, f, ensure_ascii=False, indent=2)
-
-    try:
-        save_result_to_db(result_dict, int(request_id))
-    except Exception as e:
-        return {"error": f"DB 저장 중 오류 발생: {str(e)}"}
-    notify_main_api(user_id, int(request_id))
-
-    return {"message": "분석 완료 및 Main API에 알림 전송 완료"}
+    # 콘솔에도 출력
+    print("\n=== 얼굴 분석 결과 ===")
+    #print("추천 염색 리스트 확인:", recs)
+    for k, v in final_result.items():
+        print(f"{k} : {v}")
+    
+    return final_result
 
 # # ✅ S3 URL에서 이미지 불러오기
 # def read_image_from_url(url):
