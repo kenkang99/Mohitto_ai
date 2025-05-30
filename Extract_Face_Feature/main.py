@@ -33,11 +33,14 @@ def run_extract(data: dict = Body(...)):
     data["user_image_url"],
         data["hair_type"],
         data["hair_length"],
-        data["dyed"] ,
         data["forehead_shape"],
         data["cheekbone"],
         data["mood"],
-        data["difficulty"]
+        data["difficulty"],
+        data["dyed"]      
+        
+        
+
     )
     
     result_dict["top_rate"] = result_dict.get("이마 평가")
