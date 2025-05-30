@@ -47,6 +47,7 @@ def run_extract(data: dict = Body(...)):
     result_dict["middle_rate"] = result_dict.get("중안부 평가")
     result_dict["bottom_rate"] = result_dict.get("하안부 평가")
     result_dict["sex"] = data["sex"]
+    result_dict["has_bangs"] = data["has_bangs"]
 
     final_result = {
         "result": result_dict

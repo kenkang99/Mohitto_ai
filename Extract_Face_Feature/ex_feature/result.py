@@ -93,6 +93,7 @@ def generate_summary(image_path, curl, length,  forehead, clown, mood, care_leve
         "forehead_shape" : forehead,
         "cheekbone" : clown,
         "mood" : mood,
+        "has_bangs" : has_bangs,
         "faceshape_eval": faceshape_eval,
         "forehead_eval": forehead_eval,
         "central_eval": central_eval,
