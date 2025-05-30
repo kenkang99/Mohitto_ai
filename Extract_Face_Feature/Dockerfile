@@ -11,8 +11,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
-COPY db_utils.py .
-COPY rds_config.py .
+#COPY db_utils.py .
+#COPY rds_config.py .
 COPY ex_feature/ ./ex_feature/
 COPY api_notifier.py .  
 # FastAPI에서 알림용 함수로 쓰기 때문
