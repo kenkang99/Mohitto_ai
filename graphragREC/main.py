@@ -14,8 +14,7 @@ app = FastAPI()
 
 # 요청 형식 정의
 class UserRequest(BaseModel):
-    user_id: str
-    request_id: int
+    
     hair_length: str
     hair_type: str
     sex: str
@@ -24,8 +23,8 @@ class UserRequest(BaseModel):
     forehead_shape: str
     difficulty: str
     has_bangs: str
-    face_shape: str
-    summary: str
+    face_shape_eval: str
+    final_evaluation: str
 
 # 미용실 필터 함수
 def filter_hair_shops_by_style(style: str, df: pd.DataFrame) -> list[dict]:
@@ -42,7 +41,7 @@ def filter_hair_shops_by_style(style: str, df: pd.DataFrame) -> list[dict]:
 def get_shops_grouped_by_style(recommended_styles: dict, csv_file_path: str = 'hairshop_recommend_dataset_realfinal_easy.csv') -> dict[str, list[dict]]:
     try:
         df = pd.read_csv(csv_file_path)
-        df = df[['hairshop', 'final_dic_style', 'longitude', 'latitude', 'final_menu_price', 'review_count', 'mean_score']]
+        df = df[['hairshop','final_dic_style']]
     except FileNotFoundError:
         print(f"CSV 파일을 찾을 수 없습니다: {csv_file_path}")
         return {}
@@ -74,34 +73,23 @@ def recommend(user_input: UserRequest):
 
         # 최종 결과 구조화
         final_result = {
-            "user_info": {
-                "user_id": int(user_input.user_id),
-                "request_id": user_input.request_id
-            },
             "recommendations": []
+            
         }
 
         for rec in final_recommendations.get('recommendations', []):
             style = rec['style']
+            # hair_shops를 이름만 리스트로 변환
+            shop_names = [shop['hairshop'] for shop in shops_by_style.get(style, [])]
             final_result["recommendations"].append({
                 "style": style,
                 "description": rec.get('description', ''),
-                "hair_shops": shops_by_style.get(style, [])
+                "hair_shops": shop_names
             })
 
         print("\n=== 최종 결과 ===")
         print(json.dumps(final_result, ensure_ascii=False, indent=2))
 
-        # Main API로 전송
-        try:
-            # [개발용]
-            response = requests.post("http://main-api:8000/save-recommendation/", json=final_result)
-            # # [운영용]
-            # response = requests.post("http://43.202.9.255:8000/save-recommendation/", json=final_result)
-            response.raise_for_status()
-            print("[INFO] Main API 서버에 추천 결과 저장 성공")
-        except Exception as e:
-            print(f"[ERROR] Main API 저장 실패: {e}")
 
         return final_result
 

@@ -16,10 +16,10 @@ PROMPT_TEMPLATE = """
 
 <USER>
 다음 사용자 정보를 바탕으로 어울리는 헤어스타일 10가지를 추천하고, 각각 추천하는 이유를 간단히 설명해 주세요.
-- 얼굴형: {face_shape}
+- 얼굴형: {face_shape_eval}
 - 모발 유형: {hair_type}
 - 성별: {sex}
-- 얼굴에 대한 총평: {summary}
+- 얼굴에 대한 총평: {final_evaluation}
 - 이마 형태: {forehead_shape}
 - 광대 특징: {cheekbone}
 - 분위기: {mood}
@@ -37,10 +37,10 @@ def make_query_prompt(user_input):
     mood_str = ','.join(user_input['mood']) if isinstance(user_input['mood'], list) else user_input['mood']
     print(user_input)
     return PROMPT_TEMPLATE.format(
-        face_shape=user_input['face_shape'],
+        face_shape_eval=user_input['face_shape_eval'],
         hair_type=user_input['hair_type'],
         sex=user_input['sex'],
-        summary=user_input['summary'],
+        final_evaluation=user_input['final_evaluation'],
         cheekbone=user_input['cheekbone'],
         mood=mood_str,
         difficulty=user_input['difficulty'],
