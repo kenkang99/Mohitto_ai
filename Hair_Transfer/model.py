@@ -128,34 +128,41 @@ def resize_with_padding(image, target_size=(512, 512), fill_color=(0, 0, 0)):
     return new_image
 
 
-def model_call(id_image_path, ref_hair_path, converter_scale=1, scale=1, guidance_scale=1.5, controlnet_conditioning_scale=1):
 
+def model_call(id_image_path, ref_hair_path, converter_scale=1, scale=1, guidance_scale=1.5, controlnet_conditioning_scale=1):
     # 모델 불러오기
     model = StableHair(config="./configs/hair_transfer.yaml", weight_dtype=torch.float16)
 
-    # # Your ML logic goes here
-    id_image = Image.open(id_image_path).convert("RGB")
-    ref_hair = Image.open(ref_hair_path).convert("RGB")
-    id_image = np.array(id_image).astype("uint8")
-    ref_hair = np.array(ref_hair).astype("uint8")
+    # 이미지 로딩: 경로 or PIL.Image.Image 처리
+    if isinstance(id_image_path, Image.Image):
+        id_image = id_image_path.convert("RGB")
+    else:
+        id_image = Image.open(id_image_path).convert("RGB")
 
-    # 3️⃣ 다시 PIL.Image로 변환 (사이즈 조정 등 가능)
-    id_image = resize_with_padding(Image.fromarray(id_image, "RGB"))
-    ref_hair = resize_with_padding(Image.fromarray(ref_hair, "RGB"))
+    if isinstance(ref_hair_path, Image.Image):
+        ref_hair = ref_hair_path.convert("RGB")
+    else:
+        ref_hair = Image.open(ref_hair_path).convert("RGB")
 
+    # numpy로 변환 후 다시 PIL로 (사이즈 정규화)
+    id_image = resize_with_padding(Image.fromarray(np.array(id_image).astype("uint8"), "RGB"))
+    ref_hair = resize_with_padding(Image.fromarray(np.array(ref_hair).astype("uint8"), "RGB"))
+
+    # 대머리 이미지 생성
     id_image_bald = model.get_bald(id_image, converter_scale)
 
-    id_image_bald = np.array(id_image_bald)
-    ref_hair = np.array(ref_hair)
+    # hair transfer 수행
+    image, source_image, reference_image = model.Hair_Transfer(
+        source_image=np.array(id_image_bald),
+        reference_image=np.array(ref_hair),
+        random_seed=-1,
+        step=100,
+        guidance_scale=guidance_scale,
+        scale=scale,
+        controlnet_conditioning_scale=controlnet_conditioning_scale
+    )
 
-    image, source_image, reference_image = model.Hair_Transfer(source_image=id_image_bald,
-                                                               reference_image=ref_hair,
-                                                               random_seed=-1,
-                                                               step=100,
-                                                               guidance_scale=guidance_scale,
-                                                               scale=scale,
-                                                               controlnet_conditioning_scale=controlnet_conditioning_scale
-                                                               )
-
+    # 결과 이미지 후처리
     image = Image.fromarray((image * 255.).astype(np.uint8))
+
     return id_image_bald, image

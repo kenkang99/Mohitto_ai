@@ -1,26 +1,46 @@
-from model import StableHair
 from model import model_call
 import cv2
 import torch
 from PIL import Image
 import numpy as np
+import requests
+from io import BytesIO
+import os
+from fastapi import FastAPI, Body
+from fastapi.responses import StreamingResponse
+from uuid import uuid4
 
-id = '123'
+app = FastAPI()
 
-# 샘플 이미지
-source_img = './test_imgs/ID/sample.jpg'
-ref_img = './test_imgs/Ref/sample.jpg'
+def load_image_from_url(url: str) -> Image.Image:
+    response = requests.get(url)
+    response.raise_for_status()
+    
+    return Image.open(BytesIO(response.content)).convert("RGB")
 
-# Stable-hair 결과 생성
-bald_image, result_image = model_call(source_img, ref_img)
+@app.post("/simulate")
+def simulate(data: dict = Body(...)):
+    source_url = data["user_image_url"]
+    ref_url = data["ref_image_url"]
 
-if isinstance(result_image, Image.Image):
-    result_image = cv2.cvtColor(np.array(result_image), cv2.COLOR_RGB2BGR)
-if isinstance(bald_image, Image.Image):
-    bald_image = cv2.cvtColor(np.array(bald_image), cv2.COLOR_RGB2BGR)
+    # 이미지 불러오기
+    source_img = load_image_from_url(source_url)
+    ref_img = load_image_from_url(ref_url)
 
-# 결과 저장
-cv2.imwrite(f'./output/bald/{id}_bald.png', bald_image)
-cv2.imwrite(f'./output/result/{id}_result.png', result_image)
+    # 모델 호출
+    bald_image, result_image = model_call(source_img, ref_img)
 
-print("결과 이미지가 저장되었습니다.")
+    # 고유 ID 생성
+    file_id = str(uuid4())
+
+    # result_image를 OpenCV 형식으로 변환
+    if isinstance(result_image, Image.Image):
+        result_image = cv2.cvtColor(np.array(result_image), cv2.COLOR_RGB2BGR)
+
+    # PNG 형식으로 메모리에 저장
+    _, png_encoded = cv2.imencode(".png", result_image)
+    image_bytes = BytesIO(png_encoded.tobytes())
+
+    return StreamingResponse(image_bytes, media_type="image/png", headers={
+        "Content-Disposition": f"inline; filename={file_id}_result.png"
+    })

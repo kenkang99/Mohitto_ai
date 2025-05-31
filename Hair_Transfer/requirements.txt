@@ -128,8 +128,8 @@ tifffile==2024.4.24
 tokenizers==0.20.1
 tomlkit==0.12.0
 toolz==0.12.1
-torch==2.2.2+cu118
-torchvision==0.16.2+cu118
+torch==2.2.2+cu118 --index-url https://download.pytorch.org/whl/cu118
+torchvision==0.17.2+cu118 --index-url https://download.pytorch.org/whl/cu118
 tqdm==4.66.2
 transformers==4.45.2
 triton==2.2.0
@@ -141,7 +141,7 @@ uvicorn==0.29.0
 websocket-client==1.8.0
 websockets==11.0.3
 Werkzeug==3.0.3
-xformers==0.0.25.post1+cu118
+xformers==0.0.25.post1
 xxhash==3.4.1
 yarl==1.9.4
 zipp==3.18.1

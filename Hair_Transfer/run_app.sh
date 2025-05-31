@@ -1,6 +1,6 @@
 # 가상환경 생성
-#rm -rf stable_hair_venv
-python3 -m venv stable_hair_venv
+rm -rf stable_hair_venv
+python3.10 -m venv stable_hair_venv
 source stable_hair_venv/bin/activate
 
 # 1) pip / 빌드 도구 업그레이드
@@ -10,4 +10,5 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 # 3) 애플리케이션 실행
-python main.py
+#python main.py
+uvicorn main:app --host 0.0.0.0 --port 8003
